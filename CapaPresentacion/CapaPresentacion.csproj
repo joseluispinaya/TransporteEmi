@@ -73,6 +73,7 @@
     <Content Include="assets\css\app.min.css" />
     <Content Include="assets\css\icons.css" />
     <Content Include="assets\css\icons.min.css" />
+    <Content Include="assets\css\miestilo.css" />
     <Content Include="assets\css\vendor.min.css" />
     <Content Include="assets\images\brands\amazon.svg" />
     <Content Include="assets\images\brands\aws.svg" />
@@ -2846,12 +2847,16 @@
     <Content Include="assets\vendor\toastr\toastr.min.js" />
     <Content Include="assets\vendor\vanilla-wizard\js\wizard.min.js" />
     <Content Include="assets\vendor\wnumb\wNumb.min.js" />
+    <Content Include="Imagenes\imglogin.png" />
     <Content Include="Imagenes\sinImagen.png" />
     <Content Include="Inicio.aspx" />
     <Content Include="js\Masterpa.js" />
     <Content Include="js\UsuariosPage.js" />
+    <Content Include="js\VentaPasajes.js" />
     <Content Include="js\Viajes.js" />
+    <Content Include="Login.aspx" />
     <Content Include="Usuarios.aspx" />
+    <Content Include="VentaPasajes.aspx" />
     <Content Include="Viajes.aspx" />
     <Content Include="Web.config" />
   </ItemGroup>
@@ -2862,6 +2867,13 @@
     </Compile>
     <Compile Include="Inicio.aspx.designer.cs">
       <DependentUpon>Inicio.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Login.aspx.cs">
+      <DependentUpon>Login.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Login.aspx.designer.cs">
+      <DependentUpon>Login.aspx</DependentUpon>
     </Compile>
     <Compile Include="PageMaster.Master.cs">
       <DependentUpon>PageMaster.Master</DependentUpon>
@@ -2877,6 +2889,13 @@
     </Compile>
     <Compile Include="Usuarios.aspx.designer.cs">
       <DependentUpon>Usuarios.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="VentaPasajes.aspx.cs">
+      <DependentUpon>VentaPasajes.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="VentaPasajes.aspx.designer.cs">
+      <DependentUpon>VentaPasajes.aspx</DependentUpon>
     </Compile>
     <Compile Include="Viajes.aspx.cs">
       <DependentUpon>Viajes.aspx</DependentUpon>

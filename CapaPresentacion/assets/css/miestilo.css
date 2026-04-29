@@ -1,0 +1,78 @@
+﻿.bus-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 10px; /* Espacio para la barra de scroll */
+}
+
+/* El chasis de la flota (Ahora Horizontal) */
+.bus-container {
+    border: 4px solid var(--bs-border-color);
+    border-radius: 50px 10px 10px 50px; /* Punta redondeada a la Izquierda */
+    padding: 15px;
+    display: inline-flex; /* Crece horizontalmente según el contenido */
+    flex-direction: row;
+    background-color: var(--bs-body-bg);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    min-width: min-content;
+}
+
+/* Área del Chofer (A la izquierda) */
+.driver-area {
+    border-right: 2px dashed var(--bs-border-color);
+    padding-right: 15px;
+    margin-right: 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Volante arriba, puerta abajo */
+    align-items: center;
+    min-width: 50px;
+}
+
+/* Contenedor de todas las filas */
+.seats-area {
+    display: flex;
+    flex-direction: row; /* Las filas se ponen una al lado de la otra */
+    gap: 8px; /* ¡SEPARACIÓN REDUCIDA ENTRE FILAS! */
+}
+
+/* Una "Fila" de asientos (que visualmente ahora es una columna vertical) */
+.seat-column {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+/* El Asiento (¡MÁS PEQUEÑO!) */
+.seat {
+    width: 32px;
+    height: 32px;
+    font-size: 0.75rem; /* Letra más pequeña */
+    border: 2px solid var(--bs-primary);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    cursor: pointer;
+    color: var(--bs-primary);
+    background-color: transparent;
+    transition: all 0.2s ease-in-out;
+    user-select: none;
+}
+
+    .seat:hover, .seat.selected {
+        background-color: var(--bs-primary);
+        color: #fff;
+        transform: scale(1.1);
+    }
+
+/* El espacio del pasillo central (Ahora es una separación vertical) */
+.seat-aisle {
+    height: 20px;
+}
+
+.steering-wheel {
+    font-size: 24px;
+    color: var(--bs-secondary);
+    margin-top: 5px;
+}
