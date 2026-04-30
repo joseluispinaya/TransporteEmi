@@ -104,11 +104,11 @@
                                         <span class="menu-text">Conductores</span>
                                     </a>
                                 </li>
-                                <li class="side-nav-item">
+                                <%--<li class="side-nav-item">
                                     <a href="Buses.aspx" class="side-nav-link">
                                         <span class="menu-text">Buses</span>
                                     </a>
-                                </li>
+                                </li>--%>
                                 <li class="side-nav-item">
                                     <a href="#" class="side-nav-link">
                                         <span class="menu-text">Consultas</span>
@@ -128,14 +128,14 @@
                             <ul class="sub-menu">
                                 <li class="side-nav-item">
                                     <a href="TerminalParada.aspx" class="side-nav-link">
-                                        <span class="menu-text">Terminales</span>
+                                        <span class="menu-text">Terminales / Rutas</span>
                                     </a>
                                 </li>
-                                <li class="side-nav-item">
+                                <%--<li class="side-nav-item">
                                     <a href="Rutas.aspx" class="side-nav-link">
                                         <span class="menu-text">Rutas</span>
                                     </a>
-                                </li>
+                                </li>--%>
                                 <li class="side-nav-item">
                                     <a href="TarifasRuta.aspx" class="side-nav-link">
                                         <span class="menu-text">Tarifas</span>
@@ -184,7 +184,7 @@
                         <div class="collapse" id="sidebarIcons">
                             <ul class="sub-menu">
                                 <li class="side-nav-item">
-                                    <a href="Recepciones.aspx" class="side-nav-link">
+                                    <a href="RecepcionesEnco.aspx" class="side-nav-link">
                                         <span class="menu-text">Recepciones</span>
                                     </a>
                                 </li>

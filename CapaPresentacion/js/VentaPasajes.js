@@ -1,26 +1,63 @@
 ﻿
-// La función del botón se mantiene igual
-$("#btnVerForma").on("click", function () {
-    let cantidadAsi = $('#cboNroAsientos').val();
-    mostrarDiseno(cantidadAsi);
-});
+
+//$("#btnVerForma").on("click", function () {
+//    let cantidadAsi = $('#cboNroAsientos').val();
+//    mostrarDiseno(cantidadAsi);
+//});
+
+//$(document).on("click", ".seat", function () {
+//    $(this).toggleClass("selected");
+
+//    let numeroAsiento = $(this).data("nro");
+
+//    if ($(this).hasClass("selected")) {
+//        mostrarAlertaZero("¡Atención!", "Seleccionaste el Asiento Nro: " + numeroAsiento, "success");
+//    } else {
+//        mostrarAlertaZero("¡Atención!", "Deseleccionaste el Asiento Nro: " + numeroAsiento, "warning");
+//    }
+
+//});
+
+// Función global para seleccionar el viaje (se llama desde el HTML)
+function seleccionarViaje(elemento, asientos) {
+    // 1. Quitamos la clase 'active' a todos los viajes de la lista
+    $('.viaje-item').removeClass('active');
+
+    // 2. Le ponemos la clase 'active' solo al que hicimos clic
+    $(elemento).addClass('active');
+
+    // 3. ¡LLAMAMOS A TU FUNCIÓN! Le pasamos la cantidad de asientos
+    mostrarDiseno(asientos);
+
+    // 4. Ocultamos el panel de venta por si estaba abierto de una consulta anterior
+    $("#panelVenta").hide();
+}
 
 // Delegación de clics para los asientos
 $(document).on("click", ".seat", function () {
-    // 1. Alternamos la clase visual (se pinta / despinta)
-    $(this).toggleClass("selected");
 
-    // 2. Extraemos el número exacto del asiento usando el atributo data-nro
+    // (Opcional a futuro) Si el asiento ya tiene clase de 'vendido', no hacemos nada
+    // if ($(this).hasClass("asiento-vendido")) return;
+
+    // 1. Limpiamos selecciones previas (para que solo se elija 1 asiento a la vez)
+    $(".seat").removeClass("selected");
+
+    // 2. Marcamos el asiento actual como seleccionado
+    $(this).addClass("selected");
+
+    // 3. Extraemos el número del asiento
     let numeroAsiento = $(this).data("nro");
 
-    // 3. Verificamos si lo estamos seleccionando o deseleccionando para dar un mensaje más preciso
-    if ($(this).hasClass("selected")) {
-        mostrarAlertaZero("¡Atención!", "Seleccionaste el Asiento Nro: " + numeroAsiento, "success");
-    } else {
-        mostrarAlertaZero("¡Atención!", "Deseleccionaste el Asiento Nro: " + numeroAsiento, "warning");
-    }
+    // 4. PASAMOS EL DATO AL FORMULARIO DE ABAJO
+    $("#txtNroAsiento").val(numeroAsiento);
 
-    //mostrarAlertaZero("¡Atención!", "Nro Asientos: ", "info");
+    // 5. MOSTRAMOS EL PANEL DE VENTA CON ANIMACIÓN
+    $("#panelVenta").fadeIn(300);
+
+    // 6. Hacemos un scroll suave automático para que el usuario vea el formulario
+    setTimeout(() => {
+        $("#panelVenta")[0].scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }, 100);
 });
 
 function mostrarDiseno(cantidadAsi) {
