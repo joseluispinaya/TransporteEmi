@@ -2849,6 +2849,7 @@
     <Content Include="assets\vendor\wnumb\wNumb.min.js" />
     <Content Include="Conductores.aspx" />
     <Content Include="Imagenes\imglogin.png" />
+    <Content Include="Imagenes\rutasFlotas.png" />
     <Content Include="Imagenes\sinImagen.png" />
     <Content Include="Inicio.aspx" />
     <Content Include="js\Conductores.js" />
@@ -3030,6 +3031,16 @@
     <Folder Include="assets\vendor\rater-js\example\" />
     <Folder Include="assets\vendor\rater-js\test\" />
     <Folder Include="assets\vendor\swiper\types\modules\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CapaEntidad\CapaEntidad.csproj">
+      <Project>{74fcc862-49da-41f4-9594-37f09cb16621}</Project>
+      <Name>CapaEntidad</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\CapaNegocio\CapaNegocio.csproj">
+      <Project>{f378545c-c2c1-46d7-9fe6-781351650156}</Project>
+      <Name>CapaNegocio</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

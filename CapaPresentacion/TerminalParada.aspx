@@ -1,16 +1,60 @@
 ﻿<%@ Page Title="" Language="C#" MasterPageFile="~/PageMaster.Master" AutoEventWireup="true" CodeBehind="TerminalParada.aspx.cs" Inherits="CapaPresentacion.TerminalParada" %>
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
+    <style>
+        /* Efecto hover para que la tarjeta se sienta interactiva */
+        .card-mapa {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+            .card-mapa:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 .5rem 1rem rgba(0,0,0,.15) !important;
+            }
+        /* Asegurar que la imagen se adapte perfectamente a las esquinas superiores de la tarjeta */
+        .img-portada-mapa {
+            width: 100%;
+            object-fit: cover;
+            border-top-left-radius: var(--bs-card-inner-border-radius);
+            border-top-right-radius: var(--bs-card-inner-border-radius);
+            /* Opcional: Un ligero oscurecimiento para que contraste mejor en modo claro/oscuro */
+            filter: contrast(1.05) saturate(1.1);
+        }
+    </style>
 </asp:Content>
 <asp:Content ID="Content2" ContentPlaceHolderID="body" runat="server">
     <div class="row">
         <div class="col-lg-3">
-            <div class="card">
-                <img class="card-img-top" src="assets/images/small/small-3.jpg" alt="Card image cap">
-                <div class="card-body">
-                    <p class="card-text">
-                        Some quick example text to build on example text to build on the card title and make up.
-                    </p>
+            <div class="card card-mapa mb-3">
+
+                <!-- shadow-sm border-0 Contenedor relativo para poder superponer elementos a la imagen -->
+                <div class="position-relative">
+                    <!-- AQUI PONES LA RUTA DE TU IMAGEN -->
+                    <img src="Imagenes/rutasFlotas.png" alt="Mapa de Conexiones Bolivia" class="img-fluid img-portada-mapa">
+
+                    <!-- Etiqueta Flotante sobre la imagen (Esquina superior derecha) -->
+                    <span class="position-absolute top-0 end-0 m-2 badge bg-primary shadow-sm text-uppercase fw-semibold px-2 py-1" style="opacity: 0.9;">
+                        <i class="ti ti-map-pin me-1"></i>Red Nacional
+                    </span>
                 </div>
+
+                <!-- Cuerpo de la tarjeta con la descripción -->
+                <div class="card-body bg-light-subtle text-center border-top border-light">
+                    <h5 class="card-title fw-bold text-dark mb-1">Control de Rutas</h5>
+                    <p class="text-muted fs-13 mb-3">
+                        Gestión centralizada de ciudades, paradas y trayectos interdepartamentales.
+                    </p>
+
+                    <!-- Pequeños badges estilo "Leyenda" para acompañar el diseño -->
+                    <div class="d-flex justify-content-center flex-wrap gap-2">
+                        <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 fs-11">
+                            <i class="ti ti-location"></i>Destinos
+                        </span>
+                        <span class="badge bg-warning-subtle text-warning border border-warning-subtle px-2 py-1 fs-11">
+                            <i class="ti ti-route"></i>Conexiones
+                        </span>
+                    </div>
+                </div>
+
             </div>
         </div>
         <div class="col-lg-9">

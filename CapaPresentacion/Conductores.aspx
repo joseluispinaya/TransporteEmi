@@ -204,13 +204,20 @@
                     </div>
 
                     <div class="row">
-                        <div class="mb-1 col-md-6">
+                        <div class="mb-1 col-md-4">
                             <label for="txtNroCi" class="col-form-label col-form-label-sm">Nro CI</label>
                             <input type="text" id="txtNroCi" class="form-control form-control-sm">
                         </div>
-                        <div class="mb-1 col-md-6">
+                        <div class="mb-1 col-md-4">
                             <label for="txtNroCel" class="col-form-label col-form-label-sm">Nro Cel</label>
                             <input type="number" id="txtNroCel" class="form-control form-control-sm">
+                        </div>
+                        <div class="mb-1 col-md-4">
+                            <label for="cboEstado" class="col-form-label col-form-label-sm">Estado</label>
+                            <select class="form-select form-select-sm" id="cboEstado">
+                                <option value="1">Activo</option>
+                                <option value="0">Inactivo</option>
+                            </select>
                         </div>
                     </div>
 
@@ -259,18 +266,23 @@
                             </div>
                         </div>
                         <div class="mb-3 col-md-7">
-                            <select id="cboBuscarChofer" class="form-control form-control-sm select2" style="width: 100%;">
-                                <option value="">Buscar Chofer...</option>
-                            </select>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text" id="addon-estadobu">
+                                    <i class="ti ti-car-4wd"></i>Estado
+                                </span>
+                                <select class="form-select" id="cboEstadoBuss" aria-describedby="addon-estadobu">
+                                    <option value="1">Activo</option>
+                                    <option value="0">Inactivo</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
 
                     <div class="row">
                         <div class="mb-2 col-md-8">
-                            <div class="input-group input-group-sm">
-                                <div class="input-group-text">Chofer</div>
-                                <input type="text" class="form-control" id="txtChoferSelec" readonly>
-                            </div>
+                            <select id="cboBuscarChofer" class="form-control form-control-sm select2" style="width: 100%;">
+                                <option value="">Buscar Chofer...</option>
+                            </select>
                         </div>
                         <div class="mb-2 col-md-4">
                             <div class="input-group input-group-sm">
@@ -278,6 +290,11 @@
                                 <input type="text" class="form-control" id="txtCiChoferSelec" readonly>
                             </div>
                         </div>
+                    </div>
+
+                    <div class="input-group input-group-sm mt-2">
+                        <div class="input-group-text">Nombre Chofer</div>
+                        <input type="text" class="form-control" id="txtChoferSelec" readonly>
                     </div>
 
                 </div>
