@@ -41,6 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DTOs\BusesDTO.cs" />
     <Compile Include="DTOs\UsuarioDTO.cs" />
     <Compile Include="Entidades\EBuses.cs" />
     <Compile Include="Entidades\EChofer.cs" />

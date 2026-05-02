@@ -32,5 +32,17 @@ namespace CapaNegocio
         {
             return DCiudadParada.GetInstance().ListaCiudadesParada();
         }
+
+        // rutas
+
+        public Respuesta<int> GuardarOrEditRutas(ERuta objeto)
+        {
+            return DCiudadParada.GetInstance().GuardarOrEditRutas(objeto);
+        }
+
+        public Respuesta<List<ERuta>> ListaRutas()
+        {
+            return DCiudadParada.GetInstance().ListaRutas();
+        }
     }
 }

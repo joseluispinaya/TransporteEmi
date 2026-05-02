@@ -1,5 +1,8 @@
 ﻿<%@ Page Title="" Language="C#" MasterPageFile="~/PageMaster.Master" AutoEventWireup="true" CodeBehind="TerminalParada.aspx.cs" Inherits="CapaPresentacion.TerminalParada" %>
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
+    <link href="assets/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet" type="text/css" />
+    <link href="assets/vendor/datatables/extensiones/css/responsive.dataTables.min.css" rel="stylesheet" type="text/css" />
+    <link href="assets/vendor/datatables/extensiones/css/buttons.dataTables.min.css" rel="stylesheet" type="text/css" />
     <style>
         /* Efecto hover para que la tarjeta se sienta interactiva */
         .card-mapa {
@@ -81,10 +84,10 @@
                                     </div>
 
                                     <div class="table-responsive">
-                                        <table class="table table-hover table-borderless align-middle table-nowrap" id="tbTerminales" style="width: 100%">
+                                        <table class="table table-sm table-hover align-middle" id="tbTerminales" style="width: 100%">
                                             <thead class="table-light">
                                                 <tr>
-                                                    <th class="rounded-start">Id</th>
+                                                    <th>Id</th>
                                                     <th>Terminales</th>
                                                     <th>Estado</th>
                                                     <th class="text-center rounded-end">Opciones</th>
@@ -109,7 +112,7 @@
                                     </div>
 
                                     <div class="table-responsive">
-                                        <table class="table table-hover table-borderless align-middle table-nowrap" id="tbRutas" style="width: 100%">
+                                        <table class="table table-sm table-hover align-middle" id="tbRutas" style="width: 100%">
                                             <thead class="table-light">
                                                 <tr>
                                                     <th class="rounded-start">Id</th>
@@ -118,13 +121,13 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <tr>
+                                                <%--<tr>
                                                     <td class="fw-bold">#1</td>
                                                     <td><i class="ti ti-map-pin text-success me-1"></i>Riberalta - La Paz</td>
                                                     <td class="text-center">
                                                         <button class="btn btn-sm btn-soft-info btn-icon"><i class="ti ti-pencil"></i></button>
                                                     </td>
-                                                </tr>
+                                                </tr>--%>
                                             </tbody>
                                         </table>
                                     </div>
@@ -171,6 +174,67 @@
             </div>
         </div>
     </div>
+
+    <div id="modalTerminal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modalLabelterminal" aria-hidden="true">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalLabelterminal">Terminales</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-1">
+                        <label for="txtNombreCiudadPa" class="form-label mb-1">Ciudad Terminal</label>
+                        <input type="text" id="txtNombreCiudadPa" name="Ciudad Terminal" class="form-control form-control-sm">
+                    </div>
+                    <div class="mb-1">
+                        <label for="cboEstado" class="form-label mb-1">Estado</label>
+                        <select class="form-select form-select-sm" id="cboEstado">
+                            <option value="1">Activo</option>
+                            <option value="0">Inactivo</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal"><i class="ti ti-square-rounded-x fs-16 align-middle me-1"></i>Salir</button>
+                    <button type="button" id="btnGuardarRegCiudad" class="btn btn-sm btn-success"><i class="ti ti-device-floppy fs-16 align-middle me-1"></i>Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalRutas" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modalLabelrutas" aria-hidden="true">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalLabelrutas">Rutas</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-1">
+                        <label for="txtNombreRuta" class="form-label mb-1">Ingrese Ruta</label>
+                        <input type="text" id="txtNombreRuta" name="Ruta" class="form-control form-control-sm">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal"><i class="ti ti-square-rounded-x fs-16 align-middle me-1"></i>Salir</button>
+                    <button type="button" id="btnGuardarRegRuta" class="btn btn-sm btn-success"><i class="ti ti-device-floppy fs-16 align-middle me-1"></i>Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </asp:Content>
 <asp:Content ID="Content3" ContentPlaceHolderID="footer" runat="server">
+    <script src="assets/vendor/datatables/jquery.dataTables.min.js"></script>
+    <script src="assets/vendor/datatables/dataTables.bootstrap4.min.js"></script>
+
+    <script src="assets/vendor/datatables/extensiones/js/dataTables.responsive.min.js"></script>
+
+    <script src="assets/vendor/datatables/extensiones/js/dataTables.buttons.min.js"></script>
+    <script src="assets/vendor/datatables/extensiones/js/jszip.min.js"></script>
+    <script src="assets/vendor/datatables/extensiones/js/buttons.html5.min.js"></script>
+    <script src="assets/vendor/datatables/extensiones/js/buttons.print.min.js"></script>
+
+    <script src="js/TerminalParada.js?v=<%= DateTime.Now.ToString("yyyyMMddHHmmss") %>" type="text/javascript"></script>
 </asp:Content>

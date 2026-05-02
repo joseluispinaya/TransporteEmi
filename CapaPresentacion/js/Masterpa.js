@@ -67,7 +67,8 @@ function mostrarAlertaTimer(titulo, mensaje, icono, tiempo = 3000) {
         buttonsStyling: false,
         showCloseButton: true, // La 'X' en la esquina superior derecha
         customClass: {
-            confirmButton: 'btn ' + btnClass + ' mt-2'
+            //confirmButton: 'btn ' + btnClass + ' mt-2'
+            confirmButton: 'btn ' + btnClass
         }
     });
 }

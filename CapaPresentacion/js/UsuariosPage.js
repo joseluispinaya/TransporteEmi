@@ -88,7 +88,8 @@ $("#btnZero").on("click", function () {
 });
 
 $("#btnTimer").on("click", function () {
-    mostrarAlertaTimer("¡Guardado!", "La encomienda se registró correctamente.", "success", 4000);
+    mostrarAlertaTimer("¡Guardado!", "La encomienda se registró correctamente.", "success");
+    //mostrarAlertaTimer("¡Guardado!", "La encomienda se registró correctamente.", "success", 4000);
 });
 
 $("#btnTimerNew").on("click", function () {

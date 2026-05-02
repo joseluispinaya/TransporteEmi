@@ -141,5 +141,123 @@ namespace CapaDatos
                 };
             }
         }
+
+        // rutas
+
+        public Respuesta<int> GuardarOrEditRutas(ERuta objeto)
+        {
+            Respuesta<int> response = new Respuesta<int>();
+            int resultadoCodigo = 0;
+
+            try
+            {
+                using (SqlConnection con = ConexionBD.GetInstance().ConexionDB())
+                {
+                    using (SqlCommand cmd = new SqlCommand("usp_GuardarOrEditRutas", con))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+
+                        // 2. Parámetros del Docente
+                        cmd.Parameters.AddWithValue("@IdRuta", objeto.IdRuta);
+                        cmd.Parameters.AddWithValue("@NombreRuta", objeto.NombreRuta);
+
+                        // 4. Parámetro de Salida
+                        SqlParameter outputParam = new SqlParameter("@Resultado", SqlDbType.Int)
+                        {
+                            Direction = ParameterDirection.Output
+                        };
+                        cmd.Parameters.Add(outputParam);
+
+                        con.Open();
+                        cmd.ExecuteNonQuery();
+
+                        resultadoCodigo = Convert.ToInt32(outputParam.Value);
+                    }
+                }
+
+                response.Data = resultadoCodigo;
+
+                // 5. Interpretación de la respuesta (Igual que con Carreras y Grados)
+                switch (resultadoCodigo)
+                {
+                    case 1:
+                        response.Estado = false;
+                        response.Valor = "warning";
+                        response.Mensaje = "Ya existe un registro con la misma Ruta.";
+                        break;
+
+                    case 2:
+                        response.Estado = true;
+                        response.Valor = "success";
+                        response.Mensaje = "Registrado correctamente.";
+                        break;
+
+                    case 3:
+                        response.Estado = true;
+                        response.Valor = "success";
+                        response.Mensaje = "Actualizado correctamente.";
+                        break;
+
+                    case 0:
+                    default:
+                        response.Estado = false;
+                        response.Valor = "error";
+                        response.Mensaje = "No se pudo completar la operación en la base de datos.";
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                //response.Data = 0;
+                response.Estado = false;
+                response.Valor = "error";
+                response.Mensaje = "Error interno: " + ex.Message;
+            }
+
+            return response;
+        }
+
+        public Respuesta<List<ERuta>> ListaRutas()
+        {
+            try
+            {
+                List<ERuta> rptLista = new List<ERuta>();
+                using (SqlConnection con = ConexionBD.GetInstance().ConexionDB())
+                {
+                    using (SqlCommand comando = new SqlCommand("usp_ListaRutas", con))
+                    {
+                        comando.CommandType = CommandType.StoredProcedure;
+                        con.Open();
+                        using (SqlDataReader dr = comando.ExecuteReader())
+                        {
+                            while (dr.Read())
+                            {
+                                rptLista.Add(new ERuta
+                                {
+                                    IdRuta = Convert.ToInt32(dr["IdRuta"]),
+                                    NombreRuta = dr["NombreRuta"].ToString()
+                                });
+                            }
+                        }
+                    }
+                }
+                return new Respuesta<List<ERuta>>()
+                {
+                    Estado = true,
+                    Data = rptLista,
+                    Mensaje = "Lista obtenida correctamente"
+                };
+            }
+            catch (Exception ex)
+            {
+                return new Respuesta<List<ERuta>>()
+                {
+                    Estado = false,
+                    Data = null,
+                    Mensaje = $"Error al obtener la lista: {ex.Message}"
+                };
+            }
+        }
+
     }
 }

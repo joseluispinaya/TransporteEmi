@@ -1,6 +1,8 @@
 ﻿<%@ Page Title="" Language="C#" MasterPageFile="~/PageMaster.Master" AutoEventWireup="true" CodeBehind="Conductores.aspx.cs" Inherits="CapaPresentacion.Conductores" %>
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
-
+    <link href="assets/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet" type="text/css" />
+    <link href="assets/vendor/datatables/extensiones/css/responsive.dataTables.min.css" rel="stylesheet" type="text/css" />
+    <link href="assets/vendor/datatables/extensiones/css/buttons.dataTables.min.css" rel="stylesheet" type="text/css" />
     <style>
         /* Pequeño truco CSS para el ícono gigante de fondo en las tarjetas */
         .bg-icon-transport {
@@ -107,19 +109,18 @@
                             </div>
 
                             <div class="table-responsive">
-                                <table class="table table-hover table-borderless align-middle table-nowrap" id="tbChofer" style="width: 100%">
+                                <table class="table table-sm table-hover align-middle" id="tbChofer" style="width: 100%">
                                     <thead class="table-light">
                                         <tr>
                                             <th class="rounded-start">Id</th>
-                                            <th>Nombres</th>
-                                            <th>Nro CI</th>
-                                            <th>Nro Cel</th>
+                                            <th>Conductor</th>
+                                            <th>Credenciales</th>
+                                            <th>Estado</th>
                                             <th class="text-center rounded-end">Opciones</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <!-- Datos de prueba para que veas cómo queda -->
-                                        <tr>
+                                        <%--<tr>
                                             <td class="fw-bold">#1</td>
                                             <td>
                                                 <div class="d-flex align-items-center">
@@ -132,10 +133,9 @@
                                             <td>8475923 SC</td>
                                             <td><i class="ti ti-phone text-success me-1"></i>77412589</td>
                                             <td class="text-center">
-                                                <!-- Botones de acción más limpios -->
                                                 <button class="btn btn-sm btn-soft-info btn-icon"><i class="ti ti-pencil"></i></button>
                                             </td>
-                                        </tr>
+                                        </tr>--%>
                                     </tbody>
                                 </table>
                             </div>
@@ -157,13 +157,13 @@
                             </div>
 
                             <div class="table-responsive">
-                                <table class="table table-hover table-borderless align-middle table-nowrap" id="tbBuses" style="width: 100%">
+                                <table class="table table-sm table-hover align-middle" id="tbBuses" style="width: 100%">
                                     <thead class="table-light">
                                         <tr>
                                             <th class="rounded-start">Id</th>
                                             <th>Nro Placa</th>
-                                            <th>Tipo Bus</th>
-                                            <th>Nro Asi</th>
+                                            <th>Datos Bus</th>
+                                            <th>Estado</th>
                                             <th class="text-center rounded-end">Opciones</th>
                                         </tr>
                                     </thead>
@@ -189,28 +189,28 @@
                 <div class="modal-body">
                     <div class="input-group input-group-sm mb-2">
                         <div class="input-group-text">Nombre Completo</div>
-                        <input type="text" class="form-control" id="txtNombreChofer" placeholder="Nombre Completo">
+                        <input type="text" class="form-control validze" id="txtNombreChofer" name="Nombre Completo" placeholder="Nombre Completo">
                     </div>
 
                     <div class="row">
                         <div class="mb-1 col-md-6">
                             <label for="txtNroLicencia" class="col-form-label col-form-label-sm">Nro Licencia</label>
-                            <input type="text" id="txtNroLicencia" name="Nro Licencia" class="form-control form-control-sm">
+                            <input type="text" id="txtNroLicencia" name="Nro Licencia" class="form-control form-control-sm validze">
                         </div>
                         <div class="mb-1 col-md-6">
                             <label for="txtTipoSangre" class="col-form-label col-form-label-sm">Tipo Sangre</label>
-                            <input type="text" id="txtTipoSangre" name="Tipo de sangre" class="form-control form-control-sm">
+                            <input type="text" id="txtTipoSangre" name="Tipo de sangre" class="form-control form-control-sm validze">
                         </div>
                     </div>
 
                     <div class="row">
                         <div class="mb-1 col-md-4">
                             <label for="txtNroCi" class="col-form-label col-form-label-sm">Nro CI</label>
-                            <input type="text" id="txtNroCi" class="form-control form-control-sm">
+                            <input type="text" id="txtNroCi" name="Nro CI" class="form-control form-control-sm validze">
                         </div>
                         <div class="mb-1 col-md-4">
                             <label for="txtNroCel" class="col-form-label col-form-label-sm">Nro Cel</label>
-                            <input type="number" id="txtNroCel" class="form-control form-control-sm">
+                            <input type="number" id="txtNroCel" name="Nro Cel" class="form-control form-control-sm validze">
                         </div>
                         <div class="mb-1 col-md-4">
                             <label for="cboEstado" class="col-form-label col-form-label-sm">Estado</label>
@@ -261,7 +261,7 @@
                         <div class="mb-3 col-md-5">
                             <div class="input-group input-group-sm">
                                 <span class="input-group-text" id="groupnrosilla"><i class="ti ti-armchair"></i> Asientos</span>
-                                <input type="text" class="form-control" id="txtNroAsiento" aria-label="NroAsiento"
+                                <input type="number" class="form-control" id="txtNroAsiento" aria-label="NroAsiento"
                                     aria-describedby="groupnrosilla">
                             </div>
                         </div>
@@ -279,12 +279,12 @@
                     </div>
 
                     <div class="row">
-                        <div class="mb-2 col-md-8">
-                            <select id="cboBuscarChofer" class="form-control form-control-sm select2" style="width: 100%;">
+                        <div class="mb-2 col-md-7">
+                            <select id="cboBuscarChofer" class="form-control select2" style="width: 100%;">
                                 <option value="">Buscar Chofer...</option>
                             </select>
                         </div>
-                        <div class="mb-2 col-md-4">
+                        <div class="mb-2 col-md-5">
                             <div class="input-group input-group-sm">
                                 <div class="input-group-text">CI</div>
                                 <input type="text" class="form-control" id="txtCiChoferSelec" readonly>
@@ -296,7 +296,7 @@
                         <div class="input-group-text">Nombre Chofer</div>
                         <input type="text" class="form-control" id="txtChoferSelec" readonly>
                     </div>
-
+                    <input id="txtIdChofer" value="0" type="hidden" />
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal"><i class="ti ti-square-rounded-x fs-16 align-middle me-1"></i>Salir</button>
@@ -307,5 +307,15 @@
     </div>
 </asp:Content>
 <asp:Content ID="Content3" ContentPlaceHolderID="footer" runat="server">
+    <script src="assets/vendor/datatables/jquery.dataTables.min.js"></script>
+    <script src="assets/vendor/datatables/dataTables.bootstrap4.min.js"></script>
+
+    <script src="assets/vendor/datatables/extensiones/js/dataTables.responsive.min.js"></script>
+
+    <script src="assets/vendor/datatables/extensiones/js/dataTables.buttons.min.js"></script>
+    <script src="assets/vendor/datatables/extensiones/js/jszip.min.js"></script>
+    <script src="assets/vendor/datatables/extensiones/js/buttons.html5.min.js"></script>
+    <script src="assets/vendor/datatables/extensiones/js/buttons.print.min.js"></script>
+
     <script src="js/Conductores.js?v=<%= DateTime.Now.ToString("yyyyMMddHHmmss") %>" type="text/javascript"></script>
 </asp:Content>
