@@ -44,5 +44,40 @@ namespace CapaPresentacion
             return NCiudadParada.GetInstance().GuardarOrEditRutas(objeto);
         }
 
+        // RUTAS PARADAS
+        [WebMethod]
+        public static Respuesta<List<ERutasParadas>> ListaRutasParadasRP(int IdRuta)
+        {
+            return NCiudadParada.GetInstance().ListaRutasParadasRP(IdRuta);
+        }
+
+        [WebMethod]
+        public static Respuesta<int> GuardarOrEditRutasParadasRP(ERutasParadas objeto)
+        {
+            return NCiudadParada.GetInstance().GuardarOrEditRutasParadasRP(objeto);
+        }
+
+        [WebMethod]
+        public static Respuesta<int> EliminarRutaParadaRP(int IdRutaParada)
+        {
+            return NCiudadParada.GetInstance().EliminarRutaParadaRP(IdRutaParada);
+        }
+
+        [WebMethod]
+        public static Respuesta<int> EliminarRutaParadaRPrueba(int IdRutaParada)
+        {
+            System.Threading.Thread.Sleep(2000);
+
+            // 2. Creamos la respuesta
+            Respuesta<int> response = new Respuesta<int>
+            {
+                Estado = true,
+                Valor = "success",
+                Mensaje = "Eliminado correctamente. (Prueba Simulada)",
+                Data = 2
+            };
+
+            return response;
+        }
     }
 }

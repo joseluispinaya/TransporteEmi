@@ -133,16 +133,47 @@
                                     </div>
                                 </div>
                                 <div class="tab-pane fade" id="v-pills-settings2" role="tabpanel" aria-labelledby="v-pills-settings-tab">
-                                    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 pb-3 border-bottom">
-                                        <div>
-                                            <h5 class="mb-0 text-dark">Asigna Orden de Rutas</h5>
-                                            <p class="text-muted fs-13 mb-0">Administra las ordenes de las rutas y paradas.</p>
+                                    <div class="mb-3 pb-3 border-bottom">
+
+                                        <!-- ARRIBA: Títulos -->
+                                        <div class="mb-3">
+                                            <h5 class="mb-0 text-dark">Orden de Rutas y Paradas</h5>
+                                            <p class="text-muted fs-13 mb-0">Seleccione una ruta para ver y administrar sus paradas.</p>
                                         </div>
-                                        <div>
-                                            <button type="button" id="btnNuevaOrdenRt" class="btn btn-primary rounded-pill fw-medium px-3">
-                                                <i class="ti ti-user-plus fs-18 align-middle me-1"></i>Registrar Orden
+
+                                        <!-- ABAJO: Filtro y Botón Lado a Lado -->
+                                        <div class="d-flex flex-wrap flex-md-nowrap align-items-center gap-2">
+
+                                            <!-- Select (Crecerá para ocupar el espacio sobrante) -->
+                                            <div class="input-group flex-grow-1">
+                                                <span class="input-group-text bg-white border-end-0 text-primary" id="addon-rutatable">
+                                                    <i class="ti ti-road fs-18"></i>
+                                                </span>
+                                                <select class="form-select text-dark fw-medium" id="cboRutasTable" aria-describedby="addon-rutatable">
+                                                </select>
+                                            </div>
+
+                                            <!-- Botón (No se encogerá gracias a flex-shrink-0 y text-nowrap) -->
+                                            <button type="button" id="btnNuevaOrdenRp" class="btn btn-dark rounded-pill fw-medium px-3 text-nowrap flex-shrink-0">
+                                                <i class="ti ti-map-pin-plus fs-18 align-middle me-1"></i>Nueva Parada
                                             </button>
+
                                         </div>
+                                    </div>
+
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-hover align-middle" id="tbRutaParadas" style="width: 100%">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>Id</th>
+                                                    <th>Ciudad/Parada</th>
+                                                    <th>Nro. Orden</th>
+                                                    <th class="text-center rounded-end">Opciones</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                            </tbody>
+                                        </table>
                                     </div>
                                 </div>
                             </div>
@@ -219,6 +250,51 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal"><i class="ti ti-square-rounded-x fs-16 align-middle me-1"></i>Salir</button>
                     <button type="button" id="btnGuardarRegRuta" class="btn btn-sm btn-success"><i class="ti ti-device-floppy fs-16 align-middle me-1"></i>Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalRutaPara" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modalLabelrutapara" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalLabelrutapara">Rutas - Paradas</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+
+                    <div class="input-group input-group-sm mb-2">
+                        <span class="input-group-text" id="addon-rutabus">
+                            <i class="ti ti-road me-1"></i>Seleccione una Ruta
+                        </span>
+                        <select class="form-select text-dark" id="cboRutabus" aria-describedby="addon-rutabus">
+                        </select>
+                    </div>
+
+                    <div class="row">
+                        <div class="mb-1 col-md-7">
+                            <label class="form-label text-muted fs-13 mb-1">Seleccione Ciudad</label>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text"><i class="ti ti-map-pin"></i></span>
+                                <select class="form-select" id="cboCiudadPa">
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-1 col-md-5">
+                            <label class="form-label text-muted fs-13 mb-1">Nro. Orden</label>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text text-success fw-bold">Nro.</span>
+                                <input type="number" class="form-control" id="txtOrden">
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal"><i class="ti ti-square-rounded-x fs-16 align-middle me-1"></i>Salir</button>
+                    <button type="button" id="btnGuardarRutaPara" class="btn btn-sm btn-success"><i class="ti ti-device-floppy fs-16 align-middle me-1"></i>Guardar</button>
                 </div>
             </div>
         </div>

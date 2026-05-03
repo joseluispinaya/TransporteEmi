@@ -44,6 +44,7 @@
     <Compile Include="ConexionBD.cs" />
     <Compile Include="DBuses.cs" />
     <Compile Include="DCiudadParada.cs" />
+    <Compile Include="DTarifas.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

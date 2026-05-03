@@ -259,5 +259,200 @@ namespace CapaDatos
             }
         }
 
+        // el metodo de lista RUTAS_PARADAS el de la magia
+
+        public Respuesta<List<ERutasParadas>> ListaRutasParadasRP(int IdRuta)
+        {
+            try
+            {
+                List<ERutasParadas> rptLista = new List<ERutasParadas>();
+
+                using (SqlConnection con = ConexionBD.GetInstance().ConexionDB())
+                {
+                    using (SqlCommand comando = new SqlCommand("usp_ListarParadasPorRuta", con))
+                    {
+                        comando.CommandType = CommandType.StoredProcedure;
+                        comando.Parameters.AddWithValue("@IdRuta", IdRuta);
+                        con.Open();
+
+                        using (SqlDataReader dr = comando.ExecuteReader())
+                        {
+                            while (dr.Read())
+                            {
+                                rptLista.Add(new ERutasParadas
+                                {
+                                    IdRutaParada = Convert.ToInt32(dr["IdRutaParada"]),
+                                    IdRuta = Convert.ToInt32(dr["IdRuta"]),
+                                    IdCiudad = Convert.ToInt32(dr["IdCiudad"]),
+                                    NombreCiudad = dr["NombreCiudad"].ToString(),
+                                    Orden = Convert.ToInt32(dr["Orden"])
+                                });
+                            }
+                        }
+                    }
+                }
+                return new Respuesta<List<ERutasParadas>>()
+                {
+                    Estado = true,
+                    Data = rptLista,
+                    Mensaje = "Lista obtenidos correctamente"
+                };
+            }
+            catch (Exception ex)
+            {
+                // Maneja cualquier error inesperado
+                return new Respuesta<List<ERutasParadas>>()
+                {
+                    Estado = false,
+                    Mensaje = "Ocurrió un error: " + ex.Message,
+                    Data = null
+                };
+            }
+        }
+
+        public Respuesta<int> GuardarOrEditRutasParadasRP(ERutasParadas objeto)
+        {
+            Respuesta<int> response = new Respuesta<int>();
+            int resultadoCodigo = 0;
+
+            try
+            {
+                using (SqlConnection con = ConexionBD.GetInstance().ConexionDB())
+                {
+                    using (SqlCommand cmd = new SqlCommand("usp_GuardarOrEditRutaParada", con))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@IdRutaParada", objeto.IdRutaParada);
+                        cmd.Parameters.AddWithValue("@IdRuta", objeto.IdRuta);
+
+                        cmd.Parameters.AddWithValue("@IdCiudad", objeto.IdCiudad);
+                        cmd.Parameters.AddWithValue("@Orden", objeto.Orden);
+
+                        SqlParameter outputParam = new SqlParameter("@Resultado", SqlDbType.Int)
+                        {
+                            Direction = ParameterDirection.Output
+                        };
+                        cmd.Parameters.Add(outputParam);
+
+                        con.Open();
+                        cmd.ExecuteNonQuery();
+
+                        resultadoCodigo = Convert.ToInt32(outputParam.Value);
+                    }
+                }
+
+                response.Data = resultadoCodigo;
+
+                switch (resultadoCodigo)
+                {
+                    case 1: // Duplicado
+                        response.Estado = false;
+                        response.Valor = "warning";
+                        response.Mensaje = "Error La ciudad ya pertenece a esta ruta.";
+                        break;
+
+                    case 2: // Registro Nuevo
+                        response.Estado = true;
+                        response.Valor = "success";
+                        response.Mensaje = "Registrado correctamente.";
+                        break;
+
+                    case 3: // Actualización
+                        response.Estado = true;
+                        response.Valor = "success";
+                        response.Mensaje = "Actualizado correctamente.";
+                        break;
+
+                    case 4: // El numero de orden ya existe
+                        response.Estado = false;
+                        response.Valor = "warning";
+                        response.Mensaje = "Error El número de orden ya está ocupado por otra ciudad.";
+                        break;
+
+                    case 0: // Error
+                    default:
+                        response.Estado = false;
+                        response.Valor = "error";
+                        response.Mensaje = "No se pudo completar la operación.";
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                //response.Data = 0;
+                response.Estado = false;
+                response.Valor = "error";
+                response.Mensaje = "Error interno: " + ex.Message;
+            }
+
+            return response;
+        }
+
+        public Respuesta<int> EliminarRutaParadaRP(int IdRutaParada)
+        {
+            Respuesta<int> response = new Respuesta<int>();
+            int resultadoCodigo = 0;
+
+            try
+            {
+                using (SqlConnection con = ConexionBD.GetInstance().ConexionDB())
+                {
+                    using (SqlCommand cmd = new SqlCommand("usp_EliminarRutaParada", con))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+
+                        // 2. Parámetro
+                        cmd.Parameters.AddWithValue("@IdRutaParada", IdRutaParada);
+
+                        // 4. Parámetro de Salida
+                        SqlParameter outputParam = new SqlParameter("@Resultado", SqlDbType.Int)
+                        {
+                            Direction = ParameterDirection.Output
+                        };
+                        cmd.Parameters.Add(outputParam);
+
+                        con.Open();
+                        cmd.ExecuteNonQuery();
+
+                        resultadoCodigo = Convert.ToInt32(outputParam.Value);
+                    }
+                }
+
+                response.Data = resultadoCodigo;
+
+                // 5. Interpretación de la respuesta
+                switch (resultadoCodigo)
+                {
+                    case 1:
+                        response.Estado = false;
+                        response.Valor = "warning";
+                        response.Mensaje = "No se encontro informacion para eliminar.";
+                        break;
+
+                    case 2:
+                        response.Estado = true;
+                        response.Valor = "success";
+                        response.Mensaje = "Eliminado correctamente.";
+                        break;
+
+                    case 0:
+                    default:
+                        response.Estado = false;
+                        response.Valor = "error";
+                        response.Mensaje = "No se pudo completar la operación en la base de datos.";
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                //response.Data = 0;
+                response.Estado = false;
+                response.Valor = "error";
+                response.Mensaje = "Error interno: " + ex.Message;
+            }
+
+            return response;
+        }
+
     }
 }

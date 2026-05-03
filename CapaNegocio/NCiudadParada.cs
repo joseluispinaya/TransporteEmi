@@ -44,5 +44,23 @@ namespace CapaNegocio
         {
             return DCiudadParada.GetInstance().ListaRutas();
         }
+
+        // el metodo de lista RUTAS_PARADAS el de la magia
+
+        public Respuesta<List<ERutasParadas>> ListaRutasParadasRP(int IdRuta)
+        {
+            return DCiudadParada.GetInstance().ListaRutasParadasRP(IdRuta);
+        }
+
+        public Respuesta<int> GuardarOrEditRutasParadasRP(ERutasParadas objeto)
+        {
+            return DCiudadParada.GetInstance().GuardarOrEditRutasParadasRP(objeto);
+        }
+
+        public Respuesta<int> EliminarRutaParadaRP(int IdRutaParada)
+        {
+            return DCiudadParada.GetInstance().EliminarRutaParadaRP(IdRutaParada);
+        }
+
     }
 }

@@ -43,6 +43,7 @@
   <ItemGroup>
     <Compile Include="NBuses.cs" />
     <Compile Include="NCiudadParada.cs" />
+    <Compile Include="NTarifas.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
