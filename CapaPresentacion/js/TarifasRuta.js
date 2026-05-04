@@ -10,9 +10,19 @@ $(document).ready(function () {
 
 function listaTarifario() {
 
+    //if ($.fn.DataTable.isDataTable("#tbRutas")) {
+    //    $("#tbRutas").DataTable().destroy();
+    //    $('#tbRutas tbody').empty();
+    //}
+
+    // Destruir si existe para evitar errores si la llamas varias veces
+    // if ($.fn.DataTable.isDataTable("#tbTarifas")) {
+    //     $("#tbTarifas").DataTable().destroy();
+    // }
+
     tablaData = $("#tbTarifas").DataTable({
         responsive: true,
-        searching: false,
+        searching: true, // Te sugiero habilitarlo, es muy útil para buscar rutas rápido
         info: false,
         "ajax": {
             "url": 'TarifasRuta.aspx/ListaTarifas',
@@ -32,37 +42,70 @@ function listaTarifario() {
         },
         "columns": [
             { "data": "IdTarifa", "visible": false, "searchable": false },
+
+            // 1. COLUMNA RUTA (Fusionada: Origen -> Destino)
             {
-                "data": "CiudadOrigen",
-                render: function (data) {
-                    return `<span class="badge p-1 bg-light text-dark fs-14 me-1"><i class="ti ti-map-pin-filled align-text-top fs-14 text-warning me-1"></i>${data}</span>`;
-                }
-            },
-            {
-                "data": "CiudadDestino",
-                render: function (data) {
-                    return `<span class="badge p-1 bg-light text-dark fs-14 me-1"><i class="ti ti-map-pin-filled align-text-top fs-14 text-warning me-1"></i>${data}</span>`;
-                }
-            },
-            {
-                "data": "NombreTipo",
+                "data": null, // Usamos null para tener acceso a toda la fila (row)
                 render: function (data, type, row) {
                     return `
-                        <div class="d-flex flex-column">
-                            <span class="fw-semibold">Bus ${data}</span>
-                            <span class="text-muted" style="font-size: 0.85em;">Pasaje: ${row.PrecioPasaje} Bs.</span>
+                        <div class="d-flex align-items-center fw-medium text-dark">
+                            <i class="ti ti-map-pin text-primary me-1 fs-15"></i> ${row.CiudadOrigen}
+                            <i class="ti ti-arrow-narrow-right text-muted mx-2"></i>
+                            <i class="ti ti-map-pin-filled text-success me-1 fs-15"></i> ${row.CiudadDestino}
                         </div>`;
                 }
             },
+
+            // 2. COLUMNA TIPO BUS Y PRECIO PASAJE
+            {
+                "data": "NombreTipo",
+                render: function (data, type, row) {
+                    // Formateamos para asegurar que siempre muestre 2 decimales (Ej: 50.00)
+                    let precio = parseFloat(row.PrecioPasaje).toFixed(2);
+                    return `
+                        <div class="d-flex flex-column">
+                            <span class="fw-bold text-dark"><i class="ti ti-bus me-1 text-muted"></i>Bus ${data}</span>
+                            <span class="text-success fw-semibold" style="font-size: 0.85em;">
+                                <i class="ti ti-cash me-1"></i>Pasaje: ${precio} Bs.
+                            </span>
+                        </div>`;
+                }
+            },
+
+            // 3. COLUMNA ENCOMIENDA
             {
                 "data": "PrecioKiloEncomienda",
                 render: function (data) {
-                    return `<span class="badge p-1 bg-light text-dark fs-14 me-1"><i class="ti ti-receipt-dollar align-text-top fs-14 text-warning me-1"></i>${data} Kg/(Bs.)</span>`;
+                    let precio = parseFloat(data).toFixed(2);
+                    return `
+                        <span class="badge bg-warning-subtle text-warning border border-warning-subtle fs-12 px-2 py-1">
+                            <i class="ti ti-package me-1"></i>${precio} Bs. / Kg
+                        </span>`;
                 }
             },
+
+            // 4. COLUMNA ESTADO (Activo/Inactivo)
             {
-                "defaultContent": '<button class="btn btn-soft-primary btn-icon btn-sm rounded-circle btn-editar me-2"><i class="ti ti-pencil-plus"></i></button>' +
-                    '<button class="btn btn-soft-info btn-icon btn-sm rounded-circle btn-detalle"><i class="ti ti-eye"></i></button>',
+                "data": "Estado",
+                "className": "text-center",
+                render: function (data) {
+                    if (data === true) {
+                        return `<span class="badge bg-success-subtle text-success fs-12"><i class="ti ti-check me-1"></i>Activo</span>`;
+                    } else {
+                        return `<span class="badge bg-danger-subtle text-danger fs-12"><i class="ti ti-x me-1"></i>Inactivo</span>`;
+                    }
+                }
+            },
+
+            // 5. COLUMNA OPCIONES
+            {
+                "defaultContent": `
+                    <button class="btn btn-soft-primary btn-icon btn-sm rounded-circle btn-editar me-1" title="Editar">
+                        <i class="ti ti-pencil"></i>
+                    </button>
+                    <button class="btn btn-soft-info btn-icon btn-sm rounded-circle btn-detalle" title="Ver Detalles">
+                        <i class="ti ti-eye"></i>
+                    </button>`,
                 "orderable": false,
                 "searchable": false,
                 "className": "text-center"

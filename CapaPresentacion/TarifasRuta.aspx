@@ -27,15 +27,14 @@
                     </div>
 
                     <div class="table-responsive">
-                        <table class="table table-sm table-hover align-middle" id="tbTarifas" style="width: 100%">
+                        <table class="table table-sm table-hover align-middle border-bottom" id="tbTarifas" style="width: 100%">
                             <thead class="table-light">
                                 <tr>
                                     <th>Id</th>
-                                    <th>Origen</th>
-                                    <th>Destino</th>
-                                    <th>Tipo Bus</th>
-                                    <%--<th>Precio Pasaje</th>--%>
-                                    <th>Precio Kilo</th>
+                                    <th>Ruta (Origen <i class="ti ti-arrow-right mx-1"></i>Destino)</th>
+                                    <th>Tipo de Bus & Pasaje</th>
+                                    <th>Precio Encomienda</th>
+                                    <th class="text-center">Estado</th>
                                     <th class="text-center rounded-end">Opciones</th>
                                 </tr>
                             </thead>

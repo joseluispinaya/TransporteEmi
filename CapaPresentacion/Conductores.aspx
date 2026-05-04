@@ -28,6 +28,26 @@
                 transform: translateY(-3px);
                 box-shadow: 0 .5rem 1rem rgba(0,0,0,.15) !important;
             }
+
+        /* 1. Reducir la altura del contenedor principal de Select2 */
+        .select2-container .select2-selection--single {
+            height: 31px !important; /* Altura estándar de form-control-sm en Bootstrap 5 */
+            padding: 0.25rem 0.5rem; /* Ajustar el padding interno */
+            border: 1px solid #343a40; /* Borde estándar (ajusta al color de tu template si es necesario) */
+            border-radius: var(--bs-border-radius-sm); /* Respetar el borde redondeado pequeño de Bootstrap */
+        }
+
+        /* 2. Alinear verticalmente el texto seleccionado adentro */
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: 1.5 !important;
+            padding-left: 0px !important;
+            color: #495057; /* Color de texto estándar */
+        }
+
+        /* 3. Alinear la flechita de la derecha */
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 29px !important;
+        }
     </style>
 </asp:Content>
 <asp:Content ID="Content2" ContentPlaceHolderID="body" runat="server">
@@ -72,7 +92,7 @@
         <div class="col-lg-9">
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-light d-flex align-items-center justify-content-between pt-3 pb-0 border-bottom-0">
-                    <h4 class="header-title mb-0 text-uppercase fw-bold text-muted"><i class="ti ti-layout-dashboard me-1"></i>Gestión de Flota</h4>
+                    <h4 class="header-title mb-0 text-uppercase fw-bold text-muted"><i class="ti ti-layout-dashboard me-1"></i>Gestión de Buses</h4>
 
                     <ul class="nav nav-tabs card-header-tabs border-bottom-0" style="margin-bottom: -1px;">
                         <li class="nav-item">
@@ -280,7 +300,7 @@
 
                     <div class="row">
                         <div class="mb-2 col-md-7">
-                            <select id="cboBuscarChofer" class="form-control select2" style="width: 100%;">
+                            <select id="cboBuscarChofer" class="form-control form-control-sm" style="width: 100%;">
                                 <option value="">Buscar Chofer...</option>
                             </select>
                         </div>

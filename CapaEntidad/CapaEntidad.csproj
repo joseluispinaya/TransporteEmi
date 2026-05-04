@@ -42,11 +42,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DTOs\BusesDTO.cs" />
+    <Compile Include="DTOs\ClienteDTO.cs" />
     <Compile Include="DTOs\TarifasDTO.cs" />
     <Compile Include="DTOs\UsuarioDTO.cs" />
     <Compile Include="Entidades\EBuses.cs" />
     <Compile Include="Entidades\EChofer.cs" />
     <Compile Include="Entidades\ECiudadParada.cs" />
+    <Compile Include="Entidades\ECliente.cs" />
     <Compile Include="Entidades\ERol.cs" />
     <Compile Include="Entidades\ERuta.cs" />
     <Compile Include="Entidades\ERutasParadas.cs" />

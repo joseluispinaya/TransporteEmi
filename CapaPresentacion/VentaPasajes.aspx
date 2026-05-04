@@ -167,7 +167,7 @@
                                     </select>
                                 </div>
                                 <!-- Botón Nuevo Cliente Integrado -->
-                                <button type="button" class="btn btn-primary" title="Registrar nuevo cliente" data-bs-toggle="modal" data-bs-target="#modalNuevoCliente">
+                                <button id="btnAddClient" type="button" class="btn btn-primary" title="Registrar nuevo cliente">
                                     <i class="ti ti-user-plus"></i>
                                 </button>
                             </div>
@@ -181,6 +181,7 @@
                             <input type="text" id="txtNroCi" class="form-control bg-light" readonly placeholder="---">
                         </div>
                     </div>
+                    <input id="txtIdCliente" value="0" type="hidden" />
 
                     <hr class="border-light border-2 border-dashed my-3">
 
@@ -199,9 +200,6 @@
                             <div class="input-group flex-nowrap">
                                 <span class="input-group-text"><i class="ti ti-map-pin"></i></span>
                                 <select class="form-select" id="cboDestino">
-                                    <option>Seleccione destino...</option>
-                                    <option value="1">Santa Rosa</option>
-                                    <option value="2">La Paz</option>
                                 </select>
                             </div>
                         </div>
@@ -222,6 +220,57 @@
                         </div>
                     </div>
 
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalAddc" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modalLabelcliente" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalLabelcliente">Cliente</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+
+                    <div class="row">
+                        <div class="mb-1 col-md-6">
+                            <label for="txtNombresc" class="form-label mb-1 text-muted fw-semibold">Nombres</label>
+                            <input type="text" id="txtNombresc" name="Nombres" class="form-control form-control-sm model">
+                        </div>
+
+                        <div class="mb-1 col-md-6">
+                            <!-- <label class="form-label text-muted fs-13 mb-1">Destino</label> -->
+                            <label for="txtApellidosc" class="form-label mb-1 text-muted fw-semibold">Apellidos</label>
+                            <input type="text" id="txtApellidosc" name="Apellidos" class="form-control form-control-sm model">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="mb-1 col-md-4">
+                            <label for="txtNroCic" class="form-label mb-1 text-muted fw-semibold">Nro CI</label>
+                            <input type="text" id="txtNroCic" name="Nro CI" class="form-control form-control-sm model">
+                        </div>
+
+                        <div class="mb-1 col-md-4">
+                            <label for="txtNroCelc" class="form-label mb-1 text-muted fw-semibold">Nro Cel</label>
+                            <input type="number" id="txtNroCelc" name="Nro Cel" class="form-control form-control-sm model">
+                        </div>
+
+                        <div class="mb-1 col-md-4">
+                            <label for="cboGeneroc" class="form-label mb-1 text-muted fw-semibold">Genero</label>
+                            <select class="form-select form-select-sm" id="cboGeneroc">
+                                <option value="1">Masculino</option>
+                                <option value="0">Femenino</option>
+                            </select>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal"><i class="ti ti-square-rounded-x fs-16 align-middle me-1"></i>Salir</button>
+                    <button type="button" id="btnGuardarRegisc" class="btn btn-sm btn-success"><i class="ti ti-device-floppy fs-16 align-middle me-1"></i>Guardar</button>
                 </div>
             </div>
         </div>

@@ -1,22 +1,147 @@
 ﻿
 
-//$("#btnVerForma").on("click", function () {
-//    let cantidadAsi = $('#cboNroAsientos').val();
-//    mostrarDiseno(cantidadAsi);
-//});
+let idEditar = 0;
 
-//$(document).on("click", ".seat", function () {
-//    $(this).toggleClass("selected");
+$(document).ready(function () {
+    cargarBuscadorClientes();
+});
 
-//    let numeroAsiento = $(this).data("nro");
+// Configuración del Select2 (AJAX)
+function cargarBuscadorClientes() {
+    $("#cboBuscarPasajero").select2({
 
-//    if ($(this).hasClass("selected")) {
-//        mostrarAlertaZero("¡Atención!", "Seleccionaste el Asiento Nro: " + numeroAsiento, "success");
-//    } else {
-//        mostrarAlertaZero("¡Atención!", "Deseleccionaste el Asiento Nro: " + numeroAsiento, "warning");
-//    }
+        ajax: {
+            type: "POST",
+            url: "Clientes.aspx/FiltroClientes",
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            delay: 250,
+            data: function (params) {
+                // params.term es lo que el usuario va escribiendo
+                return JSON.stringify({ busqueda: params.term || "" });
+            },
+            processResults: function (data) {
+                // 1. VALIDACIÓN: ¿Respondió bien el WebMethod? (Estado == true)
+                if (!data.d.Estado) {
+                    // Mostramos el mensaje que mandó C# (Ej: "Su sesión ha expirado" o error del Catch)
+                    mostrarAlertaZero("Atención", data.d.Mensaje, "warning");
 
-//});
+                    // Retornamos un array vacío para que Select2 no colapse
+                    return { results: [] };
+                }
+
+                // 2. Si todo está bien, mapeamos los datos
+                return {
+                    results: data.d.Data.map((item) => ({
+                        id: item.IdCliente,
+                        text: item.Nombres + ' - ' + item.Apellidos,
+                        nroci: item.NroCi,
+                        celu: item.Celular,
+                        dataCompleta: item // Guardamos todo el objeto por si lo ocupas al seleccionar
+                    }))
+                };
+            },
+            // 3. VALIDACIÓN DE RED: Por si se corta el internet o falla el servidor
+            error: function (xhr, ajaxOptions, thrownError) {
+                // IGNORAR SI EL ERROR ES PORQUE SELECT2 CANCELÓ LA PETICIÓN VIEJA
+                if (xhr.status === 0 || thrownError === 'abort') {
+                    return; // Salimos silenciosamente sin mostrar alerta
+                }
+
+                // Si es un error real (500, 404, etc.), sí mostramos la alerta
+                console.log(xhr.status + " \n" + xhr.responseText, "\n" + thrownError);
+                mostrarAlertaZero("Error de Conexión", "No se pudo comunicar con el servidor.", "error");
+            }
+        },
+        language: "es",
+        placeholder: 'Buscar por Nombre o CI...',
+        minimumInputLength: 3, // Muy buena práctica para no saturar la BD
+        templateResult: formatoResultados
+    });
+}
+
+function formatoResultados(data) {
+    if (data.loading) return data.text;
+
+    // logo a mostrar
+    var imagenMostrar = 'Imagenes/selectimg.png';
+
+    var contenedor = $(
+        `<div class="d-flex align-items-center">
+            <img src="${imagenMostrar}" style="height:40px; width:40px; margin-right:10px; border-radius:50%; object-fit:cover;"/>
+            <div>
+                <div style="font-weight: bold;">${data.text}</div>
+                <div style="font-size: 0.85em; color: #666;">CI: ${data.nroci} | Cel: ${data.celu}</div>
+            </div>
+         </div>`
+    );
+
+    return contenedor;
+}
+
+// 4. Evento al SELECCIONAR
+$("#cboBuscarPasajero").on("select2:select", function (e) {
+    const data = e.params.data.dataCompleta;
+    $("#txtIdCliente").val(data.IdCliente);
+    $("#txtNroCi").val(data.NroCi);
+    $("#txtNomPasa").val(data.Nombres + " " + data.Apellidos);
+
+    $("#cboBuscarPasajero").val(null).trigger("change");
+});
+
+$("#btnAddClient").on("click", function () {
+
+    idEditar = 0;
+
+    $("#txtNroCic").val("");
+    $("#txtNombresc").val("");
+    $("#txtApellidosc").val("");
+    $("#txtNroCelc").val("");
+    $("#cboGeneroc").val(1);
+
+    $("#txtIdCliente").val("0");
+
+    // 4. Mostramos el modal
+    $("#modalLabelcliente").text("Nuevo Registro");
+    $("#modalAddc").modal("show");
+});
+
+function cargarCiudadeDestino(idRuta) {
+
+    $("#cboDestino").html('<option value="">Cargando...</option>');
+    var request = {
+        IdRuta: parseInt(idRuta)
+    };
+
+    $.ajax({
+        url: "TerminalParada.aspx/ListaRutasParadasRP",
+        type: "POST",
+        data: JSON.stringify(request),
+        contentType: 'application/json; charset=utf-8',
+        dataType: "json",
+        success: function (response) {
+            if (response.d.Estado) {
+
+                // 1. Empezamos con la opción por defecto
+                let opcionesHTML = '<option value="">-- Seleccione Destino.--</option>';
+
+                // 2. Concatenamos todas las opciones en la variable (en memoria)
+                $.each(response.d.Data, function (i, row) {
+                    opcionesHTML += `<option value="${row.IdCiudad}">${row.NombreCiudad}</option>`;
+                });
+
+                $("#cboDestino").html(opcionesHTML);
+
+            } else {
+                $("#cboDestino").html('<option value="">Error al cargar</option>');
+            }
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            console.log(xhr.status + " \n" + xhr.responseText, "\n" + thrownError);
+            $("#cboDestino").html('<option value="">Error de conexión</option>');
+        }
+    });
+}
 
 // Función global para seleccionar el viaje (se llama desde el HTML)
 function seleccionarViaje(elemento, asientos) {
@@ -50,6 +175,7 @@ $(document).on("click", ".seat", function () {
 
     // 4. PASAMOS EL DATO AL FORMULARIO DE ABAJO
     $("#txtNroAsiento").val(numeroAsiento);
+    //cargarCiudadeDestino(1);
 
     // 5. MOSTRAMOS EL PANEL DE VENTA CON ANIMACIÓN
     $("#panelVenta").fadeIn(300);
