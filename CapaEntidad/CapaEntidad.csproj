@@ -41,8 +41,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DTOs\AsientosViajeDTO.cs" />
     <Compile Include="DTOs\BusesDTO.cs" />
     <Compile Include="DTOs\ClienteDTO.cs" />
+    <Compile Include="DTOs\TarifarioDTO.cs" />
     <Compile Include="DTOs\TarifasDTO.cs" />
     <Compile Include="DTOs\UsuarioDTO.cs" />
     <Compile Include="DTOs\ViajesDTO.cs" />

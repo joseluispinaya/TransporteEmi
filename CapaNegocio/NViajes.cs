@@ -32,5 +32,20 @@ namespace CapaNegocio
         {
             return DViajes.GetInstance().ListaViajesProgramadas();
         }
+
+        public Respuesta<List<ViajesDTO>> ListaViajesVentas()
+        {
+            return DViajes.GetInstance().ListaViajesVentas();
+        }
+
+        public Respuesta<List<AsientosViajeDTO>> ObtenerAsientosVendidos(int IdViaje)
+        {
+            return DViajes.GetInstance().ObtenerAsientosVendidos(IdViaje);
+        }
+
+        public Respuesta<TarifarioDTO> ConsultarTarifario(int IdOrigen, int IdDestino, int IdTipoBus)
+        {
+            return DViajes.GetInstance().ConsultarTarifario(IdOrigen, IdDestino, IdTipoBus);
+        }
     }
 }

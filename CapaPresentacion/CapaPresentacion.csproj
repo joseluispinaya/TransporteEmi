@@ -2877,6 +2877,7 @@
     <Content Include="js\TarifasRuta.js" />
     <Content Include="js\TerminalParada.js" />
     <Content Include="js\UsuariosPage.js" />
+    <Content Include="js\VentaPasajePru.js" />
     <Content Include="js\VentaPasajes.js" />
     <Content Include="js\Viajes.js" />
     <Content Include="Login.aspx" />

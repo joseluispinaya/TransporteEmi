@@ -1,12 +1,242 @@
 ﻿
 
 let idEditar = 0;
+let viajeSeleccionadoId = 0; // Variable global indispensable para el botón Guardar posterior
+let tipoBusSeleccionadoId = 0; // NUEVA VARIABLE GLOBAL
+//let tituloRuta = "";
 
 $(document).ready(function () {
+    cargarViajesParaVenta();
     cargarBuscadorClientes();
 });
 
-// Configuración del Select2 (AJAX)
+function cargarViajesParaVenta() {
+    $.ajax({
+        url: "VentaPasajes.aspx/ListaViajesVentas", // Ajusta la URL según tu WebForm
+        type: "POST",
+        data: "{}",
+        contentType: 'application/json; charset=utf-8',
+        dataType: "json",
+        success: function (response) {
+            if (response.d.Estado) {
+                const lista = response.d.Data;
+                let html = '';
+
+                if (lista != null && lista.length > 0) {
+                    $.each(lista, function (i, item) {
+                        // Color del reloj: Verde si está Programado, Amarillo si ya está En Ruta
+                        let badgeClass = item.Estado === 1 ? "bg-success-subtle text-success border-success-subtle" : "bg-warning-subtle text-warning border-warning-subtle";
+
+                        // Pasamos el IdViaje Y la CapacidadAsientos en el onclick
+                        html += `
+                        <div class="list-group-item viaje-item p-3" onclick="seleccionarViaje(this, ${item.IdViaje}, ${item.CapacidadAsientos}, ${item.IdRuta}, ${item.IdTipoBus}, '${item.NombreRuta}')">
+                            <h6 class="mb-2 fw-bold text-dark">
+                                <i class="ti ti-map-2 text-primary me-1 fs-15"></i>${item.NombreRuta}
+                            </h6>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="fs-13 text-muted fw-medium">
+                                    <i class="ti ti-calendar-event me-1"></i>${item.FechaSalidaStr}
+                                </span>
+                                <span class="badge ${badgeClass} border px-2 py-1">
+                                    <i class="ti ti-clock me-1"></i>${item.HoraSalidaStr}
+                                </span>
+                            </div>
+                            
+                            <!-- 3. Botón del Tipo de Bus (Abajo, ocupando el 100% del ancho para evitar quiebres) -->
+                            <button class="btn btn-sm btn-soft-info border-info rounded-pill w-100 d-flex justify-content-center align-items-center mt-1">
+                                <i class="ti ti-steering-wheel me-1 fs-15"></i> Bus ${item.TipoBus}
+                            </button>
+
+                        </div>
+                        `;
+                    });
+                    $("#listaViajesDisponibles").html(html);
+                } else {
+                    // Si no hay viajes disponibles
+                    $("#listaViajesDisponibles").html(`
+                        <div class="p-4 text-center text-muted">
+                            <i class="ti ti-bus-stop fs-4 mb-2 d-block"></i>
+                            <p class="mb-0 fs-13">No hay salidas disponibles para hoy.</p>
+                        </div>
+                    `);
+                }
+            } else {
+                console.error("Error backend:", response.d.Mensaje);
+            }
+        },
+        error: function (xhr) {
+            console.log(xhr.responseText);
+            mostrarAlertaZero("¡Atención!", "Error de comunicación con el servidor.", "error");
+        }
+    });
+}
+
+function seleccionarViaje(elemento, idViaje, asientos, idRuta, idTipoBus, nombreTitulo) {
+    $('.viaje-item').removeClass('active');
+    $(elemento).addClass('active');
+
+    viajeSeleccionadoId = idViaje;
+    tipoBusSeleccionadoId = idTipoBus; // Guardamos el tipo de bus
+    //tituloRuta = nombreTitulo;
+
+    // Por seguridad, cada que cambiamos de viaje, reseteamos y bloqueamos el precio
+    $("#txtPrecio").val("0.00").prop("readonly", true).removeClass("bg-warning-subtle");
+
+    // ¡TU CÓDIGO NUEVO AQUÍ! Mostramos el título
+    $("#lblRuta").text("Pasaje para: " + nombreTitulo);
+
+    $("#panelVenta").hide();
+
+    // Mostramos un spinner mientras consultamos la BD
+    $("#contenedorBus").html('<div class="text-center py-4"><div class="spinner-border text-primary" role="status"></div><p class="mt-2 text-muted fs-13">Cargando distribución de asientos...</p></div>').show();
+
+    // Llamamos a la base de datos
+    obtenerAsientosVendidos(idViaje, asientos);
+
+    // 2. ¡Llamamos a tu función para cargar los destinos!
+    cargarCiudadeDestino(idRuta);
+}
+
+function obtenerAsientosVendidos(idViaje, totalAsientos) {
+    const request = { IdViaje: parseInt(idViaje) };
+
+    $.ajax({
+        url: "VentaPasajes.aspx/ObtenerAsientosVendidos",
+        type: "POST",
+        data: JSON.stringify(request),
+        contentType: 'application/json; charset=utf-8',
+        dataType: "json",
+        success: function (response) {
+            if (response.d.Estado) {
+
+                // 1. Dibujamos todo el esqueleto del bus vacío (tu función original)
+                mostrarDiseno(totalAsientos);
+
+                // 2. Pintamos de colores los asientos que ya están ocupados
+                const ocupados = response.d.Data;
+
+                if (ocupados && ocupados.length > 0) {
+                    $.each(ocupados, function (i, asiento) {
+
+                        // Buscamos el DIV del asiento específico usando su atributo data-nro
+                        let $divAsiento = $(`.seat[data-nro='${asiento.NroAsiento}']`);
+
+                        if (asiento.Estado === 1) { // 1 = Reservado
+                            $divAsiento.addClass("asiento-reservado").removeClass("text-primary border-primary");
+                            $divAsiento.attr("title", `Asiento ${asiento.NroAsiento} - Reservado por: ${asiento.NombrePasajero}`);
+
+                        } else if (asiento.Estado === 2) { // 2 = Vendido
+                            $divAsiento.addClass("asiento-vendido").removeClass("text-primary border-primary");
+                            $divAsiento.attr("title", `Asiento ${asiento.NroAsiento} - Vendido a: ${asiento.NombrePasajero}`);
+                        }
+                    });
+                }
+            } else {
+                mostrarAlertaZero("¡Error!", response.d.Mensaje, "error");
+            }
+        },
+        error: function (xhr) {
+            console.log(xhr.responseText);
+            mostrarAlertaZero("¡Atención!", "Error de comunicación con el servidor.", "error");
+        }
+    });
+}
+
+$(document).on("click", ".seat", function () {
+
+    // ¡SEGURIDAD! Si el asiento está reservado o vendido, bloqueamos el clic
+    if ($(this).hasClass("asiento-vendido") || $(this).hasClass("asiento-reservado")) {
+        ToastMaster.fire({ icon: 'warning', title: 'Este asiento ya se encuentra ocupado.' });
+        return;
+    }
+
+    // 1. Limpiamos selecciones previas 
+    $(".seat").removeClass("selected");
+
+    // 2. Marcamos el asiento actual como seleccionado
+    $(this).addClass("selected");
+
+    // 3. Extraemos el número del asiento
+    let numeroAsiento = $(this).data("nro");
+
+    // 4. PASAMOS EL DATO AL FORMULARIO
+    $("#txtNroAsiento").val(numeroAsiento);
+
+    // 5. MOSTRAMOS EL PANEL DE VENTA CON ANIMACIÓN
+    $("#panelVenta").fadeIn(300);
+
+    // 6. Scroll suave automático
+    setTimeout(() => {
+        $("#panelVenta")[0].scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }, 100);
+});
+
+function mostrarDiseno(cantidadAsi) {
+    const contenedor = $("#contenedorBus");
+    contenedor.empty();
+
+    const numAsientos = parseInt(cantidadAsi);
+
+    // 1. Iniciamos el HTML con el contorno del bus y el volante a la IZQUIERDA
+    let htmlBus = `
+        <div class="bus-wrapper">
+            <div class="bus-container">
+                <div class="driver-area">
+                    <i class="ti ti-steering-wheel steering-wheel" title="Volante del Chofer"></i>
+                    
+                    <span class="text-muted fw-semibold d-flex align-items-center" style="font-size: 0.7rem; writing-mode: vertical-rl; transform: rotate(180deg);">
+                        <i class="ti ti-door-enter fs-5 mb-1"></i> Puerta
+                    </span>
+                </div>
+                <div class="seats-area">
+    `;
+
+    let asientoActual = 1;
+    const totalFilas = Math.ceil(numAsientos / 4);
+
+    // 2. Iteramos para crear las columnas (que representan las filas de la flota)
+    for (let fila = 1; fila <= totalFilas; fila++) {
+        htmlBus += `<div class="seat-column">`;
+
+        // Bloque Superior (Lado de la ventana y pasillo izquierdo)
+        htmlBus += `<div class="d-flex flex-column gap-1">`;
+        if (asientoActual <= numAsientos) htmlBus += generarAsientoHTML(asientoActual++);
+        if (asientoActual <= numAsientos) htmlBus += generarAsientoHTML(asientoActual++);
+        htmlBus += `</div>`;
+
+        // Pasillo Central (Espacio vacío)
+        htmlBus += `<div class="seat-aisle"></div>`;
+
+        // Bloque Inferior (Pasillo derecho y ventana)
+        htmlBus += `<div class="d-flex flex-column gap-1">`;
+        if (asientoActual <= numAsientos) htmlBus += generarAsientoHTML(asientoActual++);
+        if (asientoActual <= numAsientos) htmlBus += generarAsientoHTML(asientoActual++);
+        htmlBus += `</div>`;
+
+        htmlBus += `</div>`; // Cierra la seat-column
+    }
+
+    // 3. Cerramos el bus
+    htmlBus += `
+                </div>
+            </div>
+        </div>
+    `;
+
+    // 4. Inyectamos y mostramos
+    contenedor.html(htmlBus).hide().fadeIn(300);
+}
+
+function generarAsientoHTML(nro) {
+    let nroFormateado = nro < 10 ? '0' + nro : nro;
+    return `
+        <div class="seat shadow-sm" data-nro="${nro}" title="Asiento Nro ${nro}">
+            ${nroFormateado}
+        </div>
+    `;
+}
+
+// Configuración del Select2 para clientes
 function cargarBuscadorClientes() {
     $("#cboBuscarPasajero").select2({
 
@@ -89,6 +319,7 @@ $("#cboBuscarPasajero").on("select2:select", function (e) {
     $("#cboBuscarPasajero").val(null).trigger("change");
 });
 
+// registra cliente si no esta registrado
 $("#btnAddClient").on("click", function () {
 
     idEditar = 0;
@@ -106,9 +337,10 @@ $("#btnAddClient").on("click", function () {
     $("#modalAddc").modal("show");
 });
 
+// lista de ciudades segun la ruta
 function cargarCiudadeDestino(idRuta) {
 
-    $("#cboDestino").html('<option value="">Cargando...</option>');
+    $("#cboDestino").html('<option value="">Cargando destinos...</option>');
     var request = {
         IdRuta: parseInt(idRuta)
     };
@@ -123,7 +355,7 @@ function cargarCiudadeDestino(idRuta) {
             if (response.d.Estado) {
 
                 // 1. Empezamos con la opción por defecto
-                let opcionesHTML = '<option value="">-- Seleccione Destino.--</option>';
+                let opcionesHTML = '<option value="">Seleccione Destino</option>';
 
                 // 2. Concatenamos todas las opciones en la variable (en memoria)
                 $.each(response.d.Data, function (i, row) {
@@ -131,6 +363,11 @@ function cargarCiudadeDestino(idRuta) {
                 });
 
                 $("#cboDestino").html(opcionesHTML);
+
+                // UX Plus: Si la ruta solo tiene un destino de bajada, lo seleccionamos automáticamente
+                //if (response.d.Data.length === 1) {
+                //    $("#cboDestino").prop('selectedIndex', 1);
+                //}
 
             } else {
                 $("#cboDestino").html('<option value="">Error al cargar</option>');
@@ -143,112 +380,120 @@ function cargarCiudadeDestino(idRuta) {
     });
 }
 
-// Función global para seleccionar el viaje (se llama desde el HTML)
-function seleccionarViaje(elemento, asientos) {
-    // 1. Quitamos la clase 'active' a todos los viajes de la lista
-    $('.viaje-item').removeClass('active');
+$("#cboDestino").on("change", function () {
 
-    // 2. Le ponemos la clase 'active' solo al que hicimos clic
-    $(elemento).addClass('active');
+    let idDestino = $(this).val();
 
-    // 3. ¡LLAMAMOS A TU FUNCIÓN! Le pasamos la cantidad de asientos
-    mostrarDiseno(asientos);
-
-    // 4. Ocultamos el panel de venta por si estaba abierto de una consulta anterior
-    $("#panelVenta").hide();
-}
-
-// Delegación de clics para los asientos
-$(document).on("click", ".seat", function () {
-
-    // (Opcional a futuro) Si el asiento ya tiene clase de 'vendido', no hacemos nada
-    // if ($(this).hasClass("asiento-vendido")) return;
-
-    // 1. Limpiamos selecciones previas (para que solo se elija 1 asiento a la vez)
-    $(".seat").removeClass("selected");
-
-    // 2. Marcamos el asiento actual como seleccionado
-    $(this).addClass("selected");
-
-    // 3. Extraemos el número del asiento
-    let numeroAsiento = $(this).data("nro");
-
-    // 4. PASAMOS EL DATO AL FORMULARIO DE ABAJO
-    $("#txtNroAsiento").val(numeroAsiento);
-    //cargarCiudadeDestino(1);
-
-    // 5. MOSTRAMOS EL PANEL DE VENTA CON ANIMACIÓN
-    $("#panelVenta").fadeIn(300);
-
-    // 6. Hacemos un scroll suave automático para que el usuario vea el formulario
-    setTimeout(() => {
-        $("#panelVenta")[0].scrollIntoView({ behavior: 'smooth', block: 'end' });
-    }, 100);
-});
-
-function mostrarDiseno(cantidadAsi) {
-    const contenedor = $("#contenedorBus");
-    contenedor.empty();
-
-    const numAsientos = parseInt(cantidadAsi);
-
-    // 1. Iniciamos el HTML con el contorno del bus y el volante a la IZQUIERDA
-    let htmlBus = `
-        <div class="bus-wrapper">
-            <div class="bus-container">
-                <div class="driver-area">
-                    <i class="ti ti-steering-wheel steering-wheel" title="Volante del Chofer"></i>
-                    
-                    <span class="text-muted fw-semibold d-flex align-items-center" style="font-size: 0.7rem; writing-mode: vertical-rl; transform: rotate(180deg);">
-                        <i class="ti ti-door-enter fs-5 mb-1"></i> Puerta
-                    </span>
-                </div>
-                <div class="seats-area">
-    `;
-
-    let asientoActual = 1;
-    const totalFilas = Math.ceil(numAsientos / 4);
-
-    // 2. Iteramos para crear las columnas (que representan las filas de la flota)
-    for (let fila = 1; fila <= totalFilas; fila++) {
-        htmlBus += `<div class="seat-column">`;
-
-        // Bloque Superior (Lado de la ventana y pasillo izquierdo)
-        htmlBus += `<div class="d-flex flex-column gap-1">`;
-        if (asientoActual <= numAsientos) htmlBus += generarAsientoHTML(asientoActual++);
-        if (asientoActual <= numAsientos) htmlBus += generarAsientoHTML(asientoActual++);
-        htmlBus += `</div>`;
-
-        // Pasillo Central (Espacio vacío)
-        htmlBus += `<div class="seat-aisle"></div>`;
-
-        // Bloque Inferior (Pasillo derecho y ventana)
-        htmlBus += `<div class="d-flex flex-column gap-1">`;
-        if (asientoActual <= numAsientos) htmlBus += generarAsientoHTML(asientoActual++);
-        if (asientoActual <= numAsientos) htmlBus += generarAsientoHTML(asientoActual++);
-        htmlBus += `</div>`;
-
-        htmlBus += `</div>`; // Cierra la seat-column
+    // Si vuelve a la opción por defecto ("-- Seleccione --"), reseteamos a 0.00
+    if (!idDestino) {
+        $("#txtPrecio").val("0.00").prop("readonly", true).removeClass("bg-warning-subtle");
+        return;
     }
 
-    // 3. Cerramos el bus
-    htmlBus += `
-                </div>
-            </div>
-        </div>
-    `;
+    // Le mostramos un estado de "Buscando..."
+    $("#txtPrecio").val("...").prop("readonly", true);
 
-    // 4. Inyectamos y mostramos
-    contenedor.html(htmlBus).hide().fadeIn(300);
-}
+    const request = {
+        IdDestino: parseInt(idDestino),
+        IdTipoBus: parseInt(tipoBusSeleccionadoId)
+    };
 
-function generarAsientoHTML(nro) {
-    let nroFormateado = nro < 10 ? '0' + nro : nro;
-    return `
-        <div class="seat shadow-sm" data-nro="${nro}" title="Asiento Nro ${nro}">
-            ${nroFormateado}
-        </div>
-    `;
-}
+    $.ajax({
+        url: "VentaPasajes.aspx/ConsultarTarifario",
+        type: "POST",
+        data: JSON.stringify(request),
+        contentType: 'application/json; charset=utf-8',
+        dataType: "json",
+        success: function (response) {
+            if (response.d.Estado && response.d.Data != null) {
+
+                // EXITO: Encontró el precio. Lo ponemos y ASEGURAMOS que esté bloqueado
+                // EXITO: Leemos la propiedad PrecioPasaje de nuestro objeto
+                // Usamos .toFixed(2) para que siempre muestre 2 decimales (ej. 50.00)
+                let precioBoleto = response.d.Data.PrecioPasaje;
+                $("#txtPrecio").val(precioBoleto.toFixed(2)).prop("readonly", true).removeClass("bg-warning-subtle");
+
+            } else {
+                // ==========================================
+                // MANEJO DE ERRORES INTELIGENTE USANDO 'Valor'
+                // ==========================================
+
+                if (response.d.Valor === "MISMO_DESTINO") {
+
+                    // REGLA DE NEGOCIO: Reseteamos el precio y el combo, mostramos alerta fuerte
+                    $("#txtPrecio").val("0.00").prop("readonly", true).removeClass("bg-warning-subtle");
+                    $("#cboDestino").val(""); // Devolvemos el combo a "-- Seleccione Destino --"
+
+                    mostrarAlertaZero("¡Destino Inválido!", response.d.Mensaje, "warning");
+
+                } else {
+
+                    // FALLBACK NORMAL: Tarifa no configurada en la BD (dejamos ingresar manual)
+                    $("#txtPrecio").val("").prop("readonly", false).addClass("bg-warning-subtle").focus();
+
+                    ToastMaster.fire({
+                        icon: 'warning',
+                        title: 'Por favor ingrese el precio manualmente.'
+                    });
+                }
+            }
+        },
+        error: function (xhr) {
+            $("#txtPrecio").val("").prop("readonly", false).addClass("bg-warning-subtle").focus();
+            mostrarAlertaZero("¡Error!", "Problema de conexión. Ingrese el precio manualmente.", "error");
+        }
+    });
+});
+
+$("#btnRegistrarPasaje").on("click", function () {
+
+    const idCliente = $("#txtIdCliente").val();
+
+    // 1. Validación de Cliente
+    if (idCliente === "0" || idCliente === "") {
+        ToastMaster.fire({ icon: 'warning', title: 'Debe seleccionar o registrar un Cliente.' });
+        $("#cboBuscarPasajero").select2('open');
+        return;
+    }
+
+    // 2. Validación de Destino
+    let idDestino = $("#cboDestino").val();
+    if (idDestino === "") {
+        ToastMaster.fire({ icon: 'warning', title: 'Debe seleccionar un destino.' });
+        $("#cboDestino").focus();
+        return;
+    }
+
+    // 3. Validación de Precio
+    let precioTexto = $("#txtPrecio").val();
+    let costoPasaje = parseFloat(precioTexto);
+    if (isNaN(costoPasaje) || costoPasaje <= 0) {
+        ToastMaster.fire({ icon: 'warning', title: 'El precio del pasaje debe ser mayor a 0.' });
+        $("#txtPrecio").focus();
+        return;
+    }
+
+    // 4. Captura de Switch y Radio Buttons
+    let llevaMenor = $("#switchMenor").is(":checked"); // Retorna true o false
+    let estadoBoleto = $("#radioVenta").is(":checked") ? 2 : 1; // 2 = Venta, 1 = Reserva
+
+    // 5. Armado del Objeto
+    const objeto = {
+        IdViaje: viajeSeleccionadoId,
+        IdDestino: parseInt(idDestino),
+        IdPasajero: parseInt(idCliente),
+        LlevaMenorEdad: llevaMenor, // Ya es booleano, no necesita comillas
+        NroAsiento: parseInt($("#txtNroAsiento").val()),
+        CostoPasaje: costoPasaje,
+        Estado: estadoBoleto // Enviará 1 o 2 automáticamente
+    };
+
+    console.log("Boleto listo para enviar:", objeto);
+
+    // Aquí puedes poner tu mostrarAlertaZero para confirmar que se armó bien
+    mostrarAlertaZero("¡Excelente!", "Puedes ver el objeto en la consola.", "success");
+
+});
+
 
 // fin

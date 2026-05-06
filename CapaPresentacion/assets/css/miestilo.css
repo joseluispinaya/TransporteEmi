@@ -1,4 +1,35 @@
-﻿.bus-wrapper {
+﻿/* Estilos personalizados para el flujo de ventas */
+.viaje-item {
+    cursor: pointer;
+    transition: all 0.2s;
+    border-left: 4px solid transparent;
+}
+
+    .viaje-item:hover {
+        background-color: var(--bs-secondary-bg-subtle);
+        border-left-color: var(--bs-info);
+    }
+
+    .viaje-item.active {
+        background-color: var(--bs-info-bg-subtle);
+        border-left-color: var(--bs-info);
+        /*box-shadow: inset 0 0 0 1px #0dcaf0;*/
+    }
+
+/* Segmented Control para Venta/Reserva */
+.btn-group-toggle .btn {
+    flex: 1;
+}
+
+    .btn-group-toggle .btn.active {
+        background-color: #3b82f6;
+        color: white;
+        border-color: #3b82f6;
+    }
+
+
+/* Estilos personalizados para el diseño de la flota y asientos */
+.bus-wrapper {
     width: 100%;
     overflow-x: auto;
     padding-bottom: 10px; /* Espacio para la barra de scroll */
@@ -76,3 +107,24 @@
     color: var(--bs-secondary);
     margin-top: 5px;
 }
+
+/* Estados de los Asientossss */
+.seat.asiento-reservado {
+    background-color: var(--bs-warning);
+    color: #fff;
+    border-color: var(--bs-warning);
+    cursor: not-allowed; /* Cambia el cursor a prohibido */
+}
+
+.seat.asiento-vendido {
+    background-color: var(--bs-danger);
+    color: #fff;
+    border-color: var(--bs-danger);
+    cursor: not-allowed;
+}
+
+    /* Evitamos el efecto hover en los ocupados */
+    .seat.asiento-reservado:hover,
+    .seat.asiento-vendido:hover {
+        transform: none;
+    }

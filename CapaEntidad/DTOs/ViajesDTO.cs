@@ -8,6 +8,7 @@
         public int IdBus { get; set; }
         public string PlacaBus { get; set; }
         public string TipoBus { get; set; }
+        public int IdTipoBus { get; set; }
         public int CapacidadAsientos { get; set; }
 
         // Reciben el JSON crudo del frontend

@@ -1,35 +1,5 @@
 ﻿<%@ Page Title="" Language="C#" MasterPageFile="~/PageMaster.Master" AutoEventWireup="true" CodeBehind="VentaPasajes.aspx.cs" Inherits="CapaPresentacion.VentaPasajes" %>
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
-    <style>
-        /* Estilos personalizados para el flujo de ventas */
-        .viaje-item {
-            cursor: pointer;
-            transition: all 0.2s;
-            border-left: 4px solid transparent;
-        }
-
-            .viaje-item:hover {
-                background-color: var(--bs-secondary-bg-subtle);
-                border-left-color: var(--bs-info);
-            }
-
-            .viaje-item.active {
-                background-color: var(--bs-info-bg-subtle);
-                border-left-color: var(--bs-info);
-                /*box-shadow: inset 0 0 0 1px #0dcaf0;*/
-            }
-
-        /* Segmented Control para Venta/Reserva */
-        .btn-group-toggle .btn {
-            flex: 1;
-        }
-
-            .btn-group-toggle .btn.active {
-                background-color: #3b82f6;
-                color: white;
-                border-color: #3b82f6;
-            }
-    </style>
     <link href="assets/css/miestilo.css" rel="stylesheet" type="text/css" />
 </asp:Content>
 <asp:Content ID="Content2" ContentPlaceHolderID="body" runat="server">
@@ -51,33 +21,6 @@
                     <!-- LISTA DINÁMICA DE VIAJES (Reemplaza al cboNroAsientos) -->
                     <!-- Tu C# o JS generará estos DIVs iterando los viajes -->
                     <div class="list-group list-group-flush" id="listaViajesDisponibles">
-
-                        <!-- Ejemplo de Viaje 1 -->
-                        <div class="list-group-item viaje-item p-3 active" onclick="seleccionarViaje(this, 40)">
-                            <div class="d-flex justify-content-between align-items-start mb-1">
-                                <h6 class="mb-0 fw-bold text-dark">Riberalta <i class="ti ti-arrow-right mx-1"></i>La Paz</h6>
-                                <span class="badge bg-success-subtle text-success border border-success-subtle">14:30</span>
-                            </div>
-                            <div class="d-flex justify-content-end mt-2">
-                                <button class="btn btn-xs btn-outline-info rounded-pill px-2">
-                                    <i class="ti ti-steering-wheel me-1"></i>Bus Leito
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Ejemplo de Viaje 2 -->
-                        <div class="list-group-item viaje-item p-3" onclick="seleccionarViaje(this, 60)">
-                            <div class="d-flex justify-content-between align-items-start mb-1">
-                                <h6 class="mb-0 fw-bold text-dark">Riberalta <i class="ti ti-arrow-right mx-1"></i>Santa Rosa</h6>
-                                <span class="badge bg-warning-subtle text-warning border border-warning-subtle">18:00</span>
-                            </div>
-                            <div class="d-flex justify-content-end mt-2">
-                                <button class="btn btn-xs btn-outline-info rounded-pill px-2">
-                                    <i class="ti ti-steering-wheel me-1"></i>Bus Normal
-                                </button>
-                            </div>
-                        </div>
-
                     </div>
                 </div>
             </div>
@@ -153,8 +96,9 @@
 
         <!-- COLUMNA DERECHA: DATOS DEL CLIENTE Y REGISTRO h-100 -->
         <div class="col-xl-9">
-            <div class="card shadow-sm border-0">
+            <div class="card shadow-sm border-0 border-top border-primary border-3">
                 <div class="card-body">
+                    <h5 id="lblRuta" class="text-dark fw-medium text-center">Esperando...</h5>
 
                     <!-- Fila 1: Cliente -->
                     <div class="row align-items-end mb-3">

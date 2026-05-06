@@ -157,5 +157,152 @@ namespace CapaDatos
             }
         }
 
+        public Respuesta<List<ViajesDTO>> ListaViajesVentas()
+        {
+            try
+            {
+                List<ViajesDTO> rptLista = new List<ViajesDTO>();
+                using (SqlConnection con = ConexionBD.GetInstance().ConexionDB())
+                {
+                    using (SqlCommand comando = new SqlCommand("usp_ListarViajesVenta", con))
+                    {
+                        comando.CommandType = CommandType.StoredProcedure;
+                        con.Open();
+                        using (SqlDataReader dr = comando.ExecuteReader())
+                        {
+                            while (dr.Read())
+                            {
+                                rptLista.Add(new ViajesDTO
+                                {
+                                    IdViaje = Convert.ToInt32(dr["IdViaje"]),
+                                    IdRuta = Convert.ToInt32(dr["IdRuta"]),
+                                    NombreRuta = dr["NombreRuta"].ToString(),
+                                    FechaSalidaStr = Convert.ToDateTime(dr["FechaSalida"]).ToString("dd/MM/yyyy"),
+                                    HoraSalidaStr = ((TimeSpan)dr["HoraSalida"]).ToString(@"hh\:mm"),
+                                    TipoBus = dr["TipoBus"].ToString(),
+                                    IdTipoBus = Convert.ToInt32(dr["IdTipoBus"]),
+                                    CapacidadAsientos = Convert.ToInt32(dr["CapacidadAsientos"]),
+                                    Estado = Convert.ToInt32(dr["Estado"]),
+                                    EstadoTexto = dr["EstadoTexto"].ToString()
+                                });
+                            }
+                        }
+                    }
+                }
+                return new Respuesta<List<ViajesDTO>>()
+                {
+                    Estado = true,
+                    Data = rptLista,
+                    Mensaje = "Lista obtenida correctamente"
+                };
+            }
+            catch (Exception ex)
+            {
+                return new Respuesta<List<ViajesDTO>>()
+                {
+                    Estado = false,
+                    Data = null,
+                    Mensaje = $"Error al obtener la lista: {ex.Message}"
+                };
+            }
+        }
+
+        public Respuesta<List<AsientosViajeDTO>> ObtenerAsientosVendidos(int IdViaje)
+        {
+            try
+            {
+                List<AsientosViajeDTO> rptLista = new List<AsientosViajeDTO>();
+
+                using (SqlConnection con = ConexionBD.GetInstance().ConexionDB())
+                {
+                    using (SqlCommand comando = new SqlCommand("usp_ObtenerAsientosOcupadosPorViaje", con))
+                    {
+                        comando.CommandType = CommandType.StoredProcedure;
+                        comando.Parameters.AddWithValue("@IdViaje", IdViaje);
+                        con.Open();
+
+                        using (SqlDataReader dr = comando.ExecuteReader())
+                        {
+                            while (dr.Read())
+                            {
+                                rptLista.Add(new AsientosViajeDTO
+                                {
+                                    IdBoleto = Convert.ToInt32(dr["IdBoleto"]),
+                                    NroAsiento = Convert.ToInt32(dr["NroAsiento"]),
+                                    Estado = Convert.ToInt32(dr["Estado"]),
+                                    LlevaMenorEdad = Convert.ToBoolean(dr["LlevaMenorEdad"]),
+                                    NombrePasajero = dr["NombrePasajero"].ToString(),
+                                    CIPasajero = dr["CIPasajero"].ToString()
+                                });
+                            }
+                        }
+                    }
+                }
+                return new Respuesta<List<AsientosViajeDTO>>()
+                {
+                    Estado = true,
+                    Data = rptLista,
+                    Mensaje = "Lista obtenidos correctamente"
+                };
+            }
+            catch (Exception ex)
+            {
+                // Maneja cualquier error inesperado
+                return new Respuesta<List<AsientosViajeDTO>>()
+                {
+                    Estado = false,
+                    Mensaje = "Ocurrió un error: " + ex.Message,
+                    Data = null
+                };
+            }
+        }
+
+        public Respuesta<TarifarioDTO> ConsultarTarifario(int IdOrigen, int IdDestino, int IdTipoBus)
+        {
+            try
+            {
+                TarifarioDTO obj = null;
+
+                using (SqlConnection con = ConexionBD.GetInstance().ConexionDB())
+                {
+                    using (SqlCommand comando = new SqlCommand("usp_ObtenerTarifario", con))
+                    {
+                        comando.CommandType = CommandType.StoredProcedure;
+                        comando.Parameters.AddWithValue("@IdOrigen", IdOrigen);
+                        comando.Parameters.AddWithValue("@IdDestino", IdDestino);
+                        comando.Parameters.AddWithValue("@IdTipoBus", IdTipoBus);
+                        con.Open();
+
+                        using (SqlDataReader dr = comando.ExecuteReader())
+                        {
+                            if (dr.Read())
+                            {
+                                obj = new TarifarioDTO
+                                {
+                                    PrecioPasaje = Convert.ToDecimal(dr["PrecioPasaje"]),
+                                    PrecioKiloEncomienda = Convert.ToDecimal(dr["PrecioKiloEncomienda"])
+                                };
+                            }
+                        }
+                    }
+                }
+                return new Respuesta<TarifarioDTO>
+                {
+                    Estado = obj != null,
+                    Data = obj,
+                    Mensaje = obj != null ? "Tarifa obtenida." : "Tarifa no configurada."
+                };
+            }
+            catch (Exception ex)
+            {
+                return new Respuesta<TarifarioDTO>
+                {
+                    Estado = false,
+                    Mensaje = "Ocurrió un error: " + ex.Message,
+                    Data = null
+                };
+            }
+        }
+
     }
 }
