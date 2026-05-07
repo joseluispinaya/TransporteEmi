@@ -46,6 +46,7 @@
     <Compile Include="DCiudadParada.cs" />
     <Compile Include="DCliente.cs" />
     <Compile Include="DTarifas.cs" />
+    <Compile Include="DVentaPasajes.cs" />
     <Compile Include="DViajes.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

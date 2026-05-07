@@ -322,20 +322,107 @@ $("#cboBuscarPasajero").on("select2:select", function (e) {
 // registra cliente si no esta registrado
 $("#btnAddClient").on("click", function () {
 
-    idEditar = 0;
+    imprimirTicket(1);
 
-    $("#txtNroCic").val("");
-    $("#txtNombresc").val("");
-    $("#txtApellidosc").val("");
-    $("#txtNroCelc").val("");
-    $("#cboGeneroc").val(1);
+    //idEditar = 0;
 
-    $("#txtIdCliente").val("0");
+    //$("#txtNroCic").val("");
+    //$("#txtNombresc").val("");
+    //$("#txtApellidosc").val("");
+    //$("#txtNroCelc").val("");
+    //$("#cboGeneroc").val(1);
 
-    // 4. Mostramos el modal
-    $("#modalLabelcliente").text("Nuevo Registro");
-    $("#modalAddc").modal("show");
+    //$("#txtIdCliente").val("0");
+
+    //$("#modalLabelcliente").text("Nuevo Registro");
+    //$("#modalAddc").modal("show");
 });
+
+// funcion para reporte del boleto
+function imprimirTicket(idBoletoNuevo) {
+
+    const request = {
+        IdBoleto: parseInt(idBoletoNuevo)
+    };
+
+    $.ajax({
+        url: "VentaPasajes.aspx/ObtenerDetalleBoletoImpresion",
+        type: "POST",
+        data: JSON.stringify(request),
+        contentType: 'application/json; charset=utf-8',
+        dataType: "json",
+        success: function (response) {
+            if (response.d.Estado) {
+                const datosBoleto = response.d.Data;
+                // Llenamos el ticket oculto
+                $("#tck_Tipo").text(datosBoleto.TipoTransaccion);
+                $("#tck_Comprobante").text(datosBoleto.NroComprobante);
+                $("#tck_Fecha").text(datosBoleto.FechaSalidaStr);
+                $("#tck_Hora").text(datosBoleto.HoraSalidaStr);
+                $("#tck_Bus").text(datosBoleto.TipoBus + ' | ' + datosBoleto.PlacaBus);
+
+                $("#tck_Origen").text(datosBoleto.CiudadOrigen.toUpperCase());
+                $("#tck_Destino").text(datosBoleto.CiudadDestino.toUpperCase());
+
+                $("#tck_Pasajero").text(datosBoleto.NombrePasajero.toUpperCase());
+                $("#tck_CI").text(datosBoleto.CIPasajero);
+
+                // Controlamos el asiento y el menor
+                let textoAsiento = datosBoleto.NroAsiento.toString();
+                if (datosBoleto.LlevaMenorEdad) {
+                    textoAsiento += " (+BEBÉ)";
+                }
+                $("#tck_Asiento").text(textoAsiento);
+
+                $("#tck_Precio").text(datosBoleto.CostoPasaje.toFixed(2));
+
+                // Le damos al navegador 200 milisegundos para dibujar los textos antes de abrir la impresora
+                setTimeout(function () {
+                    window.print();
+                }, 200);
+
+                // Ejecutamos la impresión nativa del navegador
+                //window.print();
+
+                //mostrarAlertaTimer("¡Excelente!", response.d.Mensaje, "success");
+            } else {
+                mostrarAlertaTimer("¡Atención!", response.d.Mensaje, "warning");
+            }
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            console.log(xhr.status + " \n" + xhr.responseText, "\n" + thrownError);
+            mostrarAlertaZero("¡Atención!", "Error de comunicación con el servidor.", "error");
+        }
+    });
+}
+
+function imprimirTicketOri(idBoletoNuevo) {
+
+    const request = {
+        IdBoleto: parseInt(idBoletoNuevo)
+    };
+
+    $.ajax({
+        url: "VentaPasajes.aspx/ObtenerDetalleBoletoImpresion",
+        type: "POST",
+        data: JSON.stringify(request),
+        contentType: 'application/json; charset=utf-8',
+        dataType: "json",
+        success: function (response) {
+            if (response.d.Estado) {
+                const datos = response.d.Data;
+                console.log("Boleto:", datos);
+                mostrarAlertaTimer("¡Excelente!", response.d.Mensaje, "success");
+            } else {
+                mostrarAlertaTimer("¡Atención!", response.d.Mensaje, "warning");
+            }
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            console.log(xhr.status + " \n" + xhr.responseText, "\n" + thrownError);
+            mostrarAlertaZero("¡Atención!", "Error de comunicación con el servidor.", "error");
+        }
+    });
+}
 
 // lista de ciudades segun la ruta
 function cargarCiudadeDestino(idRuta) {
@@ -447,12 +534,17 @@ $("#cboDestino").on("change", function () {
 
 $("#btnRegistrarPasaje").on("click", function () {
 
+    // Bloqueamos el botón para evitar dobles clics
+    let $btn = $("#btnRegistrarPasaje");
+    $btn.prop("disabled", true).html('<i class="spinner-border spinner-border-sm me-2"></i>Procesando...');
+
     const idCliente = $("#txtIdCliente").val();
 
     // 1. Validación de Cliente
     if (idCliente === "0" || idCliente === "") {
         ToastMaster.fire({ icon: 'warning', title: 'Debe seleccionar o registrar un Cliente.' });
         $("#cboBuscarPasajero").select2('open');
+        $btn.prop("disabled", false).html('<i class="ti ti-check fs-20 me-2"></i>CONFIRMAR');
         return;
     }
 
@@ -461,6 +553,7 @@ $("#btnRegistrarPasaje").on("click", function () {
     if (idDestino === "") {
         ToastMaster.fire({ icon: 'warning', title: 'Debe seleccionar un destino.' });
         $("#cboDestino").focus();
+        $btn.prop("disabled", false).html('<i class="ti ti-check fs-20 me-2"></i>CONFIRMAR');
         return;
     }
 
@@ -470,6 +563,7 @@ $("#btnRegistrarPasaje").on("click", function () {
     if (isNaN(costoPasaje) || costoPasaje <= 0) {
         ToastMaster.fire({ icon: 'warning', title: 'El precio del pasaje debe ser mayor a 0.' });
         $("#txtPrecio").focus();
+        $btn.prop("disabled", false).html('<i class="ti ti-check fs-20 me-2"></i>CONFIRMAR');
         return;
     }
 
@@ -478,20 +572,50 @@ $("#btnRegistrarPasaje").on("click", function () {
     let estadoBoleto = $("#radioVenta").is(":checked") ? 2 : 1; // 2 = Venta, 1 = Reserva
 
     // 5. Armado del Objeto
-    const objeto = {
-        IdViaje: viajeSeleccionadoId,
-        IdDestino: parseInt(idDestino),
-        IdPasajero: parseInt(idCliente),
-        LlevaMenorEdad: llevaMenor, // Ya es booleano, no necesita comillas
-        NroAsiento: parseInt($("#txtNroAsiento").val()),
-        CostoPasaje: costoPasaje,
-        Estado: estadoBoleto // Enviará 1 o 2 automáticamente
+    const request = {
+        objeto: {
+            IdViaje: viajeSeleccionadoId,
+            IdDestino: parseInt(idDestino),
+            IdPasajero: parseInt(idCliente),
+            LlevaMenorEdad: llevaMenor,
+            NroAsiento: parseInt($("#txtNroAsiento").val()),
+            CostoPasaje: costoPasaje,
+            Estado: estadoBoleto
+        }
     };
 
-    console.log("Boleto listo para enviar:", objeto);
+    $.ajax({
+        url: "VentaPasajes.aspx/RegistrarPasaje",
+        type: "POST",
+        data: JSON.stringify(request),
+        contentType: 'application/json; charset=utf-8',
+        dataType: "json",
+        success: function (response) {
+            $btn.prop("disabled", false).html('<i class="ti ti-check fs-20 me-2"></i>CONFIRMAR');
 
-    // Aquí puedes poner tu mostrarAlertaZero para confirmar que se armó bien
-    mostrarAlertaZero("¡Excelente!", "Puedes ver el objeto en la consola.", "success");
+            if (response.d.Estado) {
+                let idBoletoNuevo = response.d.Data; // ¡Aquí tienes tu ID para imprimir!
+                //console.log("Boleto con ID: ", idBoletoNuevo);
+
+                ToastMaster.fire({ icon: 'success', title: 'Operación completada con éxito.' });
+
+                // Recargamos el mapa de asientos del viaje actual para que el asiento se pinte de rojo o amarillo
+                obtenerAsientosVendidos(viajeSeleccionadoId, "0"); // Manda 0 porque ya no necesitamos redibujar el bus entero
+
+                // Ocultamos el panel de venta
+                $("#panelVenta").hide();
+
+                // Opcional: Aquí puedes llamar a una función para imprimir el ticket
+                // imprimirTicket(idBoletoNuevo);
+            } else {
+                mostrarAlertaZero("¡Atención!", response.d.Mensaje, "warning");
+            }
+        },
+        error: function (xhr) {
+            $btn.prop("disabled", false).html('<i class="ti ti-check fs-20 me-2"></i>CONFIRMAR');
+            mostrarAlertaZero("¡Error!", "Problema de comunicación con el servidor.", "error");
+        }
+    });
 
 });
 

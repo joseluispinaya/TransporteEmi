@@ -51,5 +51,22 @@ namespace CapaPresentacion
             // Si pasa la validación, consultamos a la base de datos
             return NViajes.GetInstance().ConsultarTarifario(IdOrigen, IdDestino, IdTipoBus);
         }
+
+        [WebMethod]
+        public static Respuesta<int> RegistrarPasaje(BoletoDTO objeto)
+        {
+            // Simulación: El IdOrigen lo obtendré del usuario logueado
+            int IdOrigen = 1;
+
+            // Mandamos a la capa de datos
+            return NVentaPasajes.GetInstance().RegistrarBoleto(objeto, IdOrigen);
+        }
+
+        [WebMethod]
+        public static Respuesta<BoletoImpresionDTO> ObtenerDetalleBoletoImpresion(int IdBoleto)
+        {
+            return NVentaPasajes.GetInstance().ObtenerDetalleBoletoImpresion(IdBoleto);
+        }
+
     }
 }

@@ -1,0 +1,38 @@
+﻿using CapaDatos;
+using CapaEntidad.DTOs;
+using CapaEntidad.Entidades;
+using CapaEntidad.Responses;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace CapaNegocio
+{
+    public class NVentaPasajes
+    {
+        #region "PATRON SINGLETON"
+        private static NVentaPasajes instancia = null;
+        private NVentaPasajes() { }
+        public static NVentaPasajes GetInstance()
+        {
+            if (instancia == null)
+            {
+                instancia = new NVentaPasajes();
+            }
+            return instancia;
+        }
+        #endregion
+
+        public Respuesta<int> RegistrarBoleto(BoletoDTO obj, int idOrigen)
+        {
+            return DVentaPasajes.GetInstance().RegistrarBoleto(obj, idOrigen);
+        }
+
+        public Respuesta<BoletoImpresionDTO> ObtenerDetalleBoletoImpresion(int idBoleto)
+        {
+            return DVentaPasajes.GetInstance().ObtenerDetalleBoletoImpresion(idBoleto);
+        }
+    }
+}
