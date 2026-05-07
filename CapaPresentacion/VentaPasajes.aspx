@@ -223,6 +223,79 @@
     <div id="ticket-termico" class="d-none d-print-block text-dark">
 
         <div class="text-center mb-2">
+            <h4 class="fw-bolder mb-0 text-dark">TRANS FLOTA YUNGUEÑA</h4>
+            <p class="mb-0"><span class="fs-12 fw-bold">Sucursal : </span>Riberalta</p>
+            <span class="fs-12">Sistema de Boletos</span>
+        </div>
+
+        <div class="border-top border-top-dashed border-dark my-2"></div>
+
+        <div class="text-center mb-2">
+            <h5 class="fw-bold mb-0 text-dark" id="tck_Tipo">BOLETO DE VIAJE</h5>
+            <span class="fs-14 fw-medium" id="tck_Comprobante">RIB-000000</span>
+        </div>
+
+        <div class="border-top border-top-dashed border-dark my-2"></div>
+
+        <div class="fs-13">
+            <div class="d-flex justify-content-between">
+                <span class="fw-bold">Fecha Salida:</span>
+                <span id="tck_Fecha">--/--/----</span>
+            </div>
+            <div class="d-flex justify-content-between">
+                <span class="fw-bold">Hora Salida:</span>
+                <span id="tck_Hora">--:--</span>
+            </div>
+            <div class="d-flex justify-content-between">
+                <span class="fw-bold">Tipo Bus:</span>
+                <span id="tck_Bus">----</span>
+            </div>
+        </div>
+
+        <div class="border-top border-top-dashed border-dark my-2"></div>
+
+        <div class="d-flex justify-content-center gap-2 fs-14 fw-bolder">
+            <span id="tck_Origen">---</span>
+            <i class="ti ti-arrow-narrow-right fs-13"></i>
+            <span id="tck_Destino">---</span>
+        </div>
+
+        <div class="border-top border-top-dashed border-dark my-2"></div>
+
+        <div class="fs-13">
+            <div class="d-flex justify-content-between">
+                <span class="fw-bold">Pasajero:</span>
+                <span id="tck_Pasajero">----</span>
+            </div>
+            <div class="d-flex justify-content-between">
+                <span class="fw-bold">Nro. CI:</span>
+                <span id="tck_CI">---</span>
+            </div>
+        </div>
+
+        <div class="border-top border-top-dashed border-dark my-2"></div>
+
+        <div class="d-flex justify-content-between align-items-center mb-1">
+            <span class="fs-16 fw-bold">ASIENTO:</span>
+            <span class="fs-16 fw-bolder" id="tck_Asiento">00</span>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center">
+            <span class="fs-16 fw-bold">TOTAL:</span>
+            <span class="fs-16 fw-bolder">Bs. <span id="tck_Precio">0.00</span></span>
+        </div>
+
+        <div class="border-top border-top-dashed border-dark my-2"></div>
+
+        <div class="text-center fs-11 mt-2">
+            <p class="mb-1">Presentarse 30 min. antes.</p>
+            <p class="mb-0 fw-bold">¡Buen viaje!</p>
+        </div>
+    </div>
+
+    <%--<div id="ticket-termico" class="d-none d-print-block text-dark">
+
+        <div class="text-center mb-2">
             <h4 class="fw-bolder mb-0 text-dark">TERMINAL RIBERALTA</h4>
             <span class="fs-12">Sistema de Boletos</span>
         </div>
@@ -290,7 +363,7 @@
             <p class="mb-1">Presentarse 30 min. antes.</p>
             <p class="mb-0 fw-bold">¡Buen viaje!</p>
         </div>
-    </div>
+    </div>--%>
 
 </asp:Content>
 <asp:Content ID="Content3" ContentPlaceHolderID="footer" runat="server">

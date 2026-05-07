@@ -34,5 +34,16 @@ namespace CapaNegocio
         {
             return DVentaPasajes.GetInstance().ObtenerDetalleBoletoImpresion(idBoleto);
         }
+
+        public Respuesta<List<ViajesDTO>> ListaViajesDetalles(int IdRuta, int Estado)
+        {
+            return DVentaPasajes.GetInstance().ListaViajesDetalles(IdRuta, Estado);
+        }
+
+        public Respuesta<List<PasajeroViajeDTO>> ListaPasajerosViaje(int IdViaje)
+        {
+            return DVentaPasajes.GetInstance().ListaPasajerosViaje(IdViaje);
+        }
+
     }
 }

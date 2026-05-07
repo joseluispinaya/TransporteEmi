@@ -167,7 +167,7 @@
                                     </a>
                                 </li>
                                 <li class="side-nav-item">
-                                    <a href="#" class="side-nav-link">
+                                    <a href="ConsultasPasajes.aspx" class="side-nav-link">
                                         <span class="menu-text">Consultas</span>
                                     </a>
                                 </li>

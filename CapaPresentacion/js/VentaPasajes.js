@@ -3,7 +3,7 @@
 let idEditar = 0;
 let viajeSeleccionadoId = 0; // Variable global indispensable para el botón Guardar posterior
 let tipoBusSeleccionadoId = 0; // NUEVA VARIABLE GLOBAL
-//let tituloRuta = "";
+let capacidadBusSeleccionado = 0;
 
 $(document).ready(function () {
     cargarViajesParaVenta();
@@ -77,7 +77,7 @@ function seleccionarViaje(elemento, idViaje, asientos, idRuta, idTipoBus, nombre
 
     viajeSeleccionadoId = idViaje;
     tipoBusSeleccionadoId = idTipoBus; // Guardamos el tipo de bus
-    //tituloRuta = nombreTitulo;
+    capacidadBusSeleccionado = asientos; // ¡Guardamos la capacidad real!
 
     // Por seguridad, cada que cambiamos de viaje, reseteamos y bloqueamos el precio
     $("#txtPrecio").val("0.00").prop("readonly", true).removeClass("bg-warning-subtle");
@@ -322,107 +322,19 @@ $("#cboBuscarPasajero").on("select2:select", function (e) {
 // registra cliente si no esta registrado
 $("#btnAddClient").on("click", function () {
 
-    imprimirTicket(1);
+    idEditar = 0;
 
-    //idEditar = 0;
+    $("#txtNroCic").val("");
+    $("#txtNombresc").val("");
+    $("#txtApellidosc").val("");
+    $("#txtNroCelc").val("");
+    $("#cboGeneroc").val(1);
 
-    //$("#txtNroCic").val("");
-    //$("#txtNombresc").val("");
-    //$("#txtApellidosc").val("");
-    //$("#txtNroCelc").val("");
-    //$("#cboGeneroc").val(1);
+    $("#txtIdCliente").val("0");
 
-    //$("#txtIdCliente").val("0");
-
-    //$("#modalLabelcliente").text("Nuevo Registro");
-    //$("#modalAddc").modal("show");
+    $("#modalLabelcliente").text("Nuevo Registro");
+    $("#modalAddc").modal("show");
 });
-
-// funcion para reporte del boleto
-function imprimirTicket(idBoletoNuevo) {
-
-    const request = {
-        IdBoleto: parseInt(idBoletoNuevo)
-    };
-
-    $.ajax({
-        url: "VentaPasajes.aspx/ObtenerDetalleBoletoImpresion",
-        type: "POST",
-        data: JSON.stringify(request),
-        contentType: 'application/json; charset=utf-8',
-        dataType: "json",
-        success: function (response) {
-            if (response.d.Estado) {
-                const datosBoleto = response.d.Data;
-                // Llenamos el ticket oculto
-                $("#tck_Tipo").text(datosBoleto.TipoTransaccion);
-                $("#tck_Comprobante").text(datosBoleto.NroComprobante);
-                $("#tck_Fecha").text(datosBoleto.FechaSalidaStr);
-                $("#tck_Hora").text(datosBoleto.HoraSalidaStr);
-                $("#tck_Bus").text(datosBoleto.TipoBus + ' | ' + datosBoleto.PlacaBus);
-
-                $("#tck_Origen").text(datosBoleto.CiudadOrigen.toUpperCase());
-                $("#tck_Destino").text(datosBoleto.CiudadDestino.toUpperCase());
-
-                $("#tck_Pasajero").text(datosBoleto.NombrePasajero.toUpperCase());
-                $("#tck_CI").text(datosBoleto.CIPasajero);
-
-                // Controlamos el asiento y el menor
-                let textoAsiento = datosBoleto.NroAsiento.toString();
-                if (datosBoleto.LlevaMenorEdad) {
-                    textoAsiento += " (+BEBÉ)";
-                }
-                $("#tck_Asiento").text(textoAsiento);
-
-                $("#tck_Precio").text(datosBoleto.CostoPasaje.toFixed(2));
-
-                // Le damos al navegador 200 milisegundos para dibujar los textos antes de abrir la impresora
-                setTimeout(function () {
-                    window.print();
-                }, 200);
-
-                // Ejecutamos la impresión nativa del navegador
-                //window.print();
-
-                //mostrarAlertaTimer("¡Excelente!", response.d.Mensaje, "success");
-            } else {
-                mostrarAlertaTimer("¡Atención!", response.d.Mensaje, "warning");
-            }
-        },
-        error: function (xhr, ajaxOptions, thrownError) {
-            console.log(xhr.status + " \n" + xhr.responseText, "\n" + thrownError);
-            mostrarAlertaZero("¡Atención!", "Error de comunicación con el servidor.", "error");
-        }
-    });
-}
-
-function imprimirTicketOri(idBoletoNuevo) {
-
-    const request = {
-        IdBoleto: parseInt(idBoletoNuevo)
-    };
-
-    $.ajax({
-        url: "VentaPasajes.aspx/ObtenerDetalleBoletoImpresion",
-        type: "POST",
-        data: JSON.stringify(request),
-        contentType: 'application/json; charset=utf-8',
-        dataType: "json",
-        success: function (response) {
-            if (response.d.Estado) {
-                const datos = response.d.Data;
-                console.log("Boleto:", datos);
-                mostrarAlertaTimer("¡Excelente!", response.d.Mensaje, "success");
-            } else {
-                mostrarAlertaTimer("¡Atención!", response.d.Mensaje, "warning");
-            }
-        },
-        error: function (xhr, ajaxOptions, thrownError) {
-            console.log(xhr.status + " \n" + xhr.responseText, "\n" + thrownError);
-            mostrarAlertaZero("¡Atención!", "Error de comunicación con el servidor.", "error");
-        }
-    });
-}
 
 // lista de ciudades segun la ruta
 function cargarCiudadeDestino(idRuta) {
@@ -595,18 +507,22 @@ $("#btnRegistrarPasaje").on("click", function () {
 
             if (response.d.Estado) {
                 let idBoletoNuevo = response.d.Data; // ¡Aquí tienes tu ID para imprimir!
-                //console.log("Boleto con ID: ", idBoletoNuevo);
+                //limpiamos el formulario para la próxima venta
+                $("#txtIdCliente").val("0");
+                $("#txtNroCi").val("");
+                $("#txtNomPasa").val("");
+                //$("#cboDestino").val("");
 
                 ToastMaster.fire({ icon: 'success', title: 'Operación completada con éxito.' });
 
                 // Recargamos el mapa de asientos del viaje actual para que el asiento se pinte de rojo o amarillo
-                obtenerAsientosVendidos(viajeSeleccionadoId, "0"); // Manda 0 porque ya no necesitamos redibujar el bus entero
+                obtenerAsientosVendidos(viajeSeleccionadoId, capacidadBusSeleccionado);
 
                 // Ocultamos el panel de venta
                 $("#panelVenta").hide();
 
                 // Opcional: Aquí puedes llamar a una función para imprimir el ticket
-                // imprimirTicket(idBoletoNuevo);
+                imprimirTicket(idBoletoNuevo);
             } else {
                 mostrarAlertaZero("¡Atención!", response.d.Mensaje, "warning");
             }
@@ -619,5 +535,62 @@ $("#btnRegistrarPasaje").on("click", function () {
 
 });
 
+// funcion para reporte del boleto
+function imprimirTicket(idBoletoNuevo) {
+
+    const request = {
+        IdBoleto: parseInt(idBoletoNuevo)
+    };
+
+    $.ajax({
+        url: "VentaPasajes.aspx/ObtenerDetalleBoletoImpresion",
+        type: "POST",
+        data: JSON.stringify(request),
+        contentType: 'application/json; charset=utf-8',
+        dataType: "json",
+        success: function (response) {
+            if (response.d.Estado) {
+                const datosBoleto = response.d.Data;
+                // Llenamos el ticket oculto
+                $("#tck_Tipo").text(datosBoleto.TipoTransaccion);
+                $("#tck_Comprobante").text(datosBoleto.NroComprobante);
+                $("#tck_Fecha").text(datosBoleto.FechaSalidaStr);
+                $("#tck_Hora").text(datosBoleto.HoraSalidaStr);
+                $("#tck_Bus").text(datosBoleto.TipoBus + ' | ' + datosBoleto.PlacaBus);
+
+                $("#tck_Origen").text(datosBoleto.CiudadOrigen.toUpperCase());
+                $("#tck_Destino").text(datosBoleto.CiudadDestino.toUpperCase());
+
+                $("#tck_Pasajero").text(datosBoleto.NombrePasajero.toUpperCase());
+                $("#tck_CI").text(datosBoleto.CIPasajero);
+
+                // Controlamos el asiento y el menor
+                let textoAsiento = datosBoleto.NroAsiento.toString();
+                if (datosBoleto.LlevaMenorEdad) {
+                    textoAsiento += " (+BEBÉ)";
+                }
+                $("#tck_Asiento").text(textoAsiento);
+
+                $("#tck_Precio").text(datosBoleto.CostoPasaje.toFixed(2));
+
+                // Le damos al navegador 200 milisegundos para dibujar los textos antes de abrir la impresora
+                setTimeout(function () {
+                    window.print();
+                }, 200);
+
+                // Ejecutamos la impresión nativa del navegador
+                //window.print();
+
+                //mostrarAlertaTimer("¡Excelente!", response.d.Mensaje, "success");
+            } else {
+                mostrarAlertaTimer("¡Atención!", response.d.Mensaje, "warning");
+            }
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            console.log(xhr.status + " \n" + xhr.responseText, "\n" + thrownError);
+            mostrarAlertaZero("¡Atención!", "Error de comunicación con el servidor.", "error");
+        }
+    });
+}
 
 // fin

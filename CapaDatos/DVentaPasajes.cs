@@ -140,5 +140,118 @@ namespace CapaDatos
             }
         }
 
+        public Respuesta<List<ViajesDTO>> ListaViajesDetalles(int IdRuta, int Estado)
+        {
+            try
+            {
+                List<ViajesDTO> rptLista = new List<ViajesDTO>();
+
+                using (SqlConnection con = ConexionBD.GetInstance().ConexionDB())
+                {
+                    using (SqlCommand comando = new SqlCommand("usp_ListarViajesDetalles", con))
+                    {
+                        comando.CommandType = CommandType.StoredProcedure;
+                        comando.Parameters.AddWithValue("@IdRuta", IdRuta);
+                        comando.Parameters.AddWithValue("@Estado", Estado);
+                        con.Open();
+
+                        using (SqlDataReader dr = comando.ExecuteReader())
+                        {
+                            while (dr.Read())
+                            {
+                                rptLista.Add(new ViajesDTO
+                                {
+                                    IdViaje = Convert.ToInt32(dr["IdViaje"]),
+                                    IdRuta = Convert.ToInt32(dr["IdRuta"]),
+                                    NombreRuta = dr["NombreRuta"].ToString(),
+                                    IdBus = Convert.ToInt32(dr["IdBus"]),
+                                    PlacaBus = dr["PlacaBus"].ToString(),
+                                    TipoBus = dr["TipoBus"].ToString(),
+                                    CapacidadAsientos = Convert.ToInt32(dr["CapacidadAsientos"]),
+                                    FechaSalidaStr = Convert.ToDateTime(dr["FechaSalida"]).ToString("dd/MM/yyyy"),
+                                    HoraSalidaStr = ((TimeSpan)dr["HoraSalida"]).ToString(@"hh\:mm"),
+                                    // v.HoraSalidaStr = ((TimeSpan)dr["HoraSalida"]).ToString(@"hh\:mm");
+                                    Estado = Convert.ToInt32(dr["Estado"]),
+                                    EstadoTexto = dr["EstadoTexto"].ToString()
+                                });
+                            }
+                        }
+                    }
+                }
+                return new Respuesta<List<ViajesDTO>>()
+                {
+                    Estado = true,
+                    Data = rptLista,
+                    Mensaje = "Lista obtenidos correctamente"
+                };
+            }
+            catch (Exception ex)
+            {
+                // Maneja cualquier error inesperado
+                return new Respuesta<List<ViajesDTO>>()
+                {
+                    Estado = false,
+                    Mensaje = "Ocurrió un error: " + ex.Message,
+                    Data = null
+                };
+            }
+        }
+
+        public Respuesta<List<PasajeroViajeDTO>> ListaPasajerosViaje(int IdViaje)
+        {
+            try
+            {
+                List<PasajeroViajeDTO> rptLista = new List<PasajeroViajeDTO>();
+
+                using (SqlConnection con = ConexionBD.GetInstance().ConexionDB())
+                {
+                    using (SqlCommand comando = new SqlCommand("usp_ListarPasajerosPorViaje", con))
+                    {
+                        comando.CommandType = CommandType.StoredProcedure;
+                        comando.Parameters.AddWithValue("@IdViaje", IdViaje);
+                        con.Open();
+
+                        using (SqlDataReader dr = comando.ExecuteReader())
+                        {
+                            while (dr.Read())
+                            {
+                                rptLista.Add(new PasajeroViajeDTO
+                                {
+                                    IdBoleto = Convert.ToInt32(dr["IdBoleto"]),
+                                    NroAsiento = Convert.ToInt32(dr["NroAsiento"]),
+                                    IdPasajero = Convert.ToInt32(dr["IdPasajero"]),
+                                    NombreCliente = dr["NombreCliente"].ToString(),
+                                    NroCi = dr["NroCi"].ToString(),
+                                    CiudadOrigen = dr["CiudadOrigen"].ToString(),
+                                    CiudadDestino = dr["CiudadDestino"].ToString(),
+                                    CostoPasaje = Convert.ToDecimal(dr["CostoPasaje"]),
+                                    LlevaMenorEdad = Convert.ToBoolean(dr["LlevaMenorEdad"]),
+                                    NroComprobante = dr["NroComprobante"].ToString(),
+                                    Estado = Convert.ToInt32(dr["Estado"]),
+                                    EstadoTexto = dr["EstadoTexto"].ToString()
+                                });
+                            }
+                        }
+                    }
+                }
+                return new Respuesta<List<PasajeroViajeDTO>>()
+                {
+                    Estado = true,
+                    Data = rptLista,
+                    Mensaje = "Lista obtenidos correctamente"
+                };
+            }
+            catch (Exception ex)
+            {
+                // Maneja cualquier error inesperado
+                return new Respuesta<List<PasajeroViajeDTO>>()
+                {
+                    Estado = false,
+                    Mensaje = "Ocurrió un error: " + ex.Message,
+                    Data = null
+                };
+            }
+        }
+
     }
 }
