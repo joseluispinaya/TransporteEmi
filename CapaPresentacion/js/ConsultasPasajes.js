@@ -1,5 +1,6 @@
 ﻿
 let tablaData;
+let viajeSeleccionadoId = 0;
 
 $(document).ready(function () {
     cargarRutass();
@@ -125,6 +126,7 @@ function seleccionarViaje(elemento, idViaje, nombreTitulo) {
     $('.viaje-item').removeClass('active');
     $(elemento).addClass('active');
 
+    viajeSeleccionadoId = idViaje;
     // Cambiamos el título de la tabla
     $("#lblRuta").text("Pasajeros de: " + nombreTitulo);
 
@@ -147,7 +149,7 @@ function cargarListaPasajeros(idViaje) {
         searching: true,
         info: false,
         "ajax": {
-            "url": 'ConsultasPasajes.aspx/ListaPasajerosViaje', // Asegúrate de que el WebMethod se llame así
+            "url": 'ConsultasPasajes.aspx/ListaPasajerosViaje',
             "type": "POST",
             "contentType": "application/json; charset=utf-8",
             "dataType": "json",
@@ -163,15 +165,7 @@ function cargarListaPasajeros(idViaje) {
             }
         },
         "columns": [
-            // 1. Columna ID (Asiento)
-            {
-                "data": "NroAsiento",
-                "render": function (data) {
-                    // Muestra algo como "#05" o "#12"
-                    return `<span class="fw-bold fs-15 text-primary">#${data.toString().padStart(2, '0')}</span>`;
-                }
-            },
-            // 2. Columna Clientes (Nombre y CI)
+            // 1. Columna Clientes (Nombre y CI)
             {
                 "data": "NombreCliente",
                 "render": function (data, type, row) {
@@ -179,7 +173,7 @@ function cargarListaPasajeros(idViaje) {
                             <div class="fs-12 text-muted"><i class="ti ti-id me-1"></i>CI: ${row.NroCi}</div>`;
                 }
             },
-            // 3. Columna Ruta (Origen -> Destino)
+            // 2. Columna Ruta (Origen -> Destino)
             {
                 "data": "CiudadOrigen",
                 "render": function (data, type, row) {
@@ -190,52 +184,388 @@ function cargarListaPasajeros(idViaje) {
                             </div>`;
                 }
             },
-            // 4. Columna Detalle & Pasaje (Precio, Menor, Estado, Comprobante)
+            // 3. Columna Detalle & Pasaje (Precio, Menor, Estado y Asiento)
             {
                 "data": "Estado",
                 "render": function (data, type, row) {
-                    // Diseño del Badge según el estado
                     let estadoBadge = '';
                     if (data === 1) estadoBadge = `<span class="badge bg-warning-subtle text-warning border border-warning-subtle fs-11">Reserva</span>`;
                     else if (data === 2) estadoBadge = `<span class="badge bg-success-subtle text-success border border-success-subtle fs-11">Vendido</span>`;
                     else estadoBadge = `<span class="badge bg-danger-subtle text-danger border border-danger-subtle fs-11">Cancelado</span>`;
 
-                    // Icono de bebé si lleva menor
                     let menorIcon = row.LlevaMenorEdad ? `<i class="ti ti-baby-carriage fs-14 text-info ms-1" title="Lleva menor"></i>` : '';
+                    let asientoFormateado = row.NroAsiento.toString().padStart(2, '0');
 
                     return `<div class="d-flex flex-column gap-1">
                                 <div><span class="fw-bold text-success fs-14">Bs. ${row.CostoPasaje.toFixed(2)}</span> ${menorIcon}</div>
-                                <div class="d-flex align-items-center gap-1">${estadoBadge} <span class="fs-11 text-muted">${row.NroComprobante}</span></div>
+                                <div class="d-flex align-items-center gap-1">
+                                    ${estadoBadge} 
+                                    <span class="fs-12 text-dark fw-bold ms-1">Asiento #${asientoFormateado}</span>
+                                </div>
                             </div>`;
                 }
             },
-            // 5. Columna Opciones (Botones de acción dinámicos)
+            // 4. Columna Opciones (Botones por clases)
             {
-                "data": "IdBoleto",
+                "data": null,
                 "render": function (data, type, row) {
                     // Si el pasaje está vendido o reservado, mostramos el botón de imprimir. Si está cancelado, no.
+                    // Botón imprimir con clase "btn-imprimir"
                     let btnImprimir = (row.Estado === 1 || row.Estado === 2)
-                        ? `<button class="btn btn-soft-primary btn-icon btn-sm rounded-circle me-1" onclick="imprimirTicket(${data})" title="Imprimir Ticket">
+                        ? `<button class="btn btn-soft-primary btn-icon btn-sm rounded-circle me-1 btn-imprimir" title="Imprimir Ticket">
                                <i class="ti ti-printer fs-16"></i>
                            </button>`
                         : '';
 
-                    // Solo podemos anular si no está ya cancelado (Estado != 0)
-                    let btnAnular = (row.Estado !== 0)
-                        ? `<button class="btn btn-soft-danger btn-icon btn-sm rounded-circle" onclick="anularBoleto(${data})" title="Anular/Cancelar">
-                               <i class="ti ti-trash fs-16"></i>
-                           </button>`
-                        : '';
+                    // Botón detalle con clase "btn-detalle"
+                    let btnDetalle = `<button class="btn btn-soft-info btn-icon btn-sm rounded-circle btn-detalle" title="Ver Detalles">
+                                           <i class="ti ti-eye fs-16"></i>
+                                      </button>`;
 
-                    return `<div class="text-center">${btnImprimir}${btnAnular}</div>`;
+                    return `<div class="text-center">${btnImprimir}${btnDetalle}</div>`;
                 },
                 "orderable": false,
                 "searchable": false
             }
         ],
-        "order": [[0, "asc"]], // Ordenar por la columna 0 (NroAsiento) por defecto
+        "order": [], // Mantiene el orden original de tu procedimiento almacenado (por asiento)
         "language": {
             "url": "https://cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json"
+        }
+    });
+}
+
+// EVENTO: BOTÓN IMPRIMIR
+$('#tbAsientosVendidos tbody').on('click', '.btn-imprimir', function () {
+    let fila = $(this).closest('tr');
+    if (fila.hasClass('child')) {
+        fila = fila.prev();
+    }
+
+    let data = tablaData.row(fila).data();
+
+    // Llamas a tu función de impresión pasándole el IdBoleto que está en la fila
+    imprimirTicket(data.IdBoleto);
+});
+
+// EVENTO: BOTÓN DETALLE
+$('#tbAsientosVendidos tbody').on('click', '.btn-detalle', function () {
+    let fila = $(this).closest('tr');
+    if (fila.hasClass('child')) {
+        fila = fila.prev();
+    }
+
+    let data = tablaData.row(fila).data();
+    let textoSms = `Asiento #${data.NroAsiento.toString().padStart(2, '0')}`;
+    let asientoFormateado = data.NroAsiento.toString().padStart(2, '0');
+
+    //mostrarAlertaZero("¡Mensaje!", textoSms, "info");
+
+    // Llenamos los datos
+    $("#txtIdBoleto").val(data.IdBoleto);
+    $("#txtPasajeroDetalle").val(data.NombreCliente);
+    $("#txtNroAsientoModal").val(asientoFormateado);
+    $("#txtEstadoActual").val(data.EstadoTexto);
+
+    // LA MAGIA: Mostrar u ocultar botones según el Estado
+    if (data.Estado === 1) { // 1 = Reserva
+        $("#divAccionesReserva").removeClass("d-none");
+    } else { // 2 = Vendido, 0 = Cancelado
+        $("#divAccionesReserva").addClass("d-none");
+    }
+
+    // Mostrar modal
+    $("#modalLabeldetalle").text(textoSms);
+    $("#modalDetalleBoleto").modal("show");
+});
+
+// EVENTO: PAGAR RESERVA
+$("#btnConfirmarPago").on("click", function () {
+    let idBoleto = $("#txtIdBoleto").val();
+
+    // texto traerá algo como "Asiento #05"
+    let texto = $("#modalLabeldetalle").text();
+
+    if (idBoleto === "0" || idBoleto === "") {
+        ToastMaster.fire({
+            icon: 'warning',
+            title: 'Ocurrió un error, intente nuevamente.'
+        });
+        return;
+    }
+
+    // 1. SweetAlert de Confirmación
+    Swal.fire({
+        title: '¿Registrar Pago?',
+        text: `Se generará el comprobante de venta para el ${texto}.`,
+        icon: 'question',
+        showCancelButton: true,
+        //confirmButtonColor: '#28a745',
+        //cancelButtonColor: '#6c757d',
+        confirmButtonText: '<i class="ti ti-check me-1"></i> Sí, pagar',
+        cancelButtonText: '<i class="ti ti-x me-1"></i> Cancelar',
+        buttonsStyling: false,
+        customClass: {
+            confirmButton: "btn btn-danger me-2 mt-2",
+            cancelButton: "btn btn-primary mt-2"
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+
+            // Bloqueamos el botón para evitar que la secretaria haga doble clic por accidente
+            let $btn = $("#btnConfirmarPago");
+            let textoOriginal = $btn.html();
+            $btn.prop("disabled", true).html('<i class="spinner-border spinner-border-sm me-1"></i>Procesando...');
+
+            // 2. Petición AJAX al WebMethod
+            $.ajax({
+                url: "ConsultasPasajes.aspx/PagarReserva", // Asegúrate de que el WebMethod se llame exactamente así
+                type: "POST",
+                data: JSON.stringify({ IdBoleto: parseInt(idBoleto) }),
+                contentType: 'application/json; charset=utf-8',
+                dataType: "json",
+                success: function (response) {
+
+                    // Restauramos el botón
+                    $btn.prop("disabled", false).html(textoOriginal);
+
+                    if (response.d.Estado) {
+                        // a) Mostramos la alerta usando las variables mágicas de tu C#
+                        //mostrarAlertaTimer('¡Excelente!', response.d.Mensaje, response.d.Valor);
+                        ToastMaster.fire({ icon: 'success', title: 'Operación completada con éxito.' });
+
+                        // b) Cerramos el modal
+                        $("#modalDetalleBoleto").modal("hide");
+                        $("#txtIdBoleto").val("0");
+
+                        // c) Recargamos la tabla de pasajeros para que desaparezca el botón de "Pagar"
+                        cargarListaPasajeros(viajeSeleccionadoId);
+
+                        // e) Imprimimos el ticket que acaba de generarse
+                        imprimirTicket(idBoleto);
+
+                    } else {
+                        // Si es caso 2 o 3, mostramos el warning/error que mandó C#
+                        mostrarAlertaTimer('Atención', response.d.Mensaje, response.d.Valor);
+                    }
+                },
+                error: function (xhr) {
+                    $btn.prop("disabled", false).html(textoOriginal);
+                    mostrarAlertaTimer('Error', 'Problema de comunicación con el servidor.', 'error');
+                }
+            });
+        }
+    });
+});
+
+// EVENTO: ANULAR RESERVA
+$("#btnAnularReserva").on("click", function () {
+    let idBoleto = $("#txtIdBoleto").val();
+
+    // texto traerá algo como "Asiento #05"
+    let texto = $("#modalLabeldetalle").text();
+
+    if (idBoleto === "0" || idBoleto === "") {
+        ToastMaster.fire({
+            icon: 'warning',
+            title: 'Ocurrió un error, intente nuevamente.'
+        });
+        return;
+    }
+
+    // 1. SweetAlert de Confirmación
+    Swal.fire({
+        title: '¿Anular Reserva?',
+        text: `Se anulara la reserva para el ${texto}.`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: '<i class="ti ti-check me-1"></i> Sí, Anular',
+        cancelButtonText: '<i class="ti ti-x me-1"></i> Cancelar',
+        buttonsStyling: false,
+        customClass: {
+            confirmButton: "btn btn-danger me-2 mt-2",
+            cancelButton: "btn btn-primary mt-2"
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+
+            // Bloqueamos el botón para evitar que la secretaria haga doble clic por accidente
+            let $btn = $("#btnAnularReserva");
+            let textoOriginal = $btn.html();
+            $btn.prop("disabled", true).html('<i class="spinner-border spinner-border-sm me-1"></i>Procesando...');
+
+            // 2. Petición AJAX al WebMethod
+            $.ajax({
+                url: "ConsultasPasajes.aspx/EliminarReserva", // Asegúrate de que el WebMethod se llame exactamente así
+                type: "POST",
+                data: JSON.stringify({ IdBoleto: parseInt(idBoleto) }),
+                contentType: 'application/json; charset=utf-8',
+                dataType: "json",
+                success: function (response) {
+
+                    // Restauramos el botón
+                    $btn.prop("disabled", false).html(textoOriginal);
+
+                    if (response.d.Estado) {
+                        // a) Mostramos la alerta usando las variables mágicas de tu C#
+                        mostrarAlertaTimer('¡Excelente!', response.d.Mensaje, response.d.Valor);
+
+                        // b) Cerramos el modal
+                        $("#modalDetalleBoleto").modal("hide");
+                        $("#txtIdBoleto").val("0");
+
+                        cargarListaPasajeros(viajeSeleccionadoId);
+
+                    } else {
+                        // Si es caso 2 o 3, mostramos el warning/error que mandó C#
+                        mostrarAlertaTimer('Atención', response.d.Mensaje, response.d.Valor);
+                    }
+                },
+                error: function (xhr) {
+                    $btn.prop("disabled", false).html(textoOriginal);
+                    mostrarAlertaTimer('Error', 'Problema de comunicación con el servidor.', 'error');
+                }
+            });
+        }
+    });
+});
+
+$("#btnAnularReservaOriginal").on("click", function () {
+
+    //$('#btnAnularReserva').prop('disabled', true);
+    let idBoleto = $("#txtIdBoleto").val();
+    let texto = $("#modalLabeldetalle").text();
+
+    if (idBoleto === "0" || idBoleto === "") {
+        ToastMaster.fire({
+            icon: 'warning',
+            title: 'Ocurrio un error intente nuevamente.'
+        });
+        //$('#btnAnularReserva').prop('disabled', false);
+        return;
+    }
+
+    Swal.fire({
+        title: '¿Está seguro?',
+        text: `Se anulara la reserva del ${texto}.`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, Anular',
+        cancelButtonText: 'No, Cancelar',
+        buttonsStyling: false,
+        // 1. ACTIVAMOS EL LOADER NATIVO
+        showLoaderOnConfirm: true,
+        customClass: {
+            confirmButton: "btn btn-danger me-2 mt-2",
+            cancelButton: "btn btn-primary mt-2"
+        },
+        // 2. EVITAMOS QUE EL USUARIO CIERRE LA ALERTA DANDO CLIC AFUERA MIENTRAS CARGA
+        allowOutsideClick: () => !Swal.isLoading(),
+
+        // 3. LA MAGIA: METEMOS EL AJAX AQUÍ ADENTRO
+        preConfirm: () => {
+            // Retornamos una "Promesa" para que SweetAlert sepa cuándo termina
+            return new Promise((resolve, reject) => {
+                $.ajax({
+                    type: "POST",
+                    url: "ConsultasPasajes.aspx/EliminarReserva",
+                    data: JSON.stringify({ IdBoleto: parseInt(idBoleto) }),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (response) {
+                        // Si todo va bien, le pasamos la respuesta de tu C# a SweetAlert
+                        resolve(response);
+                    },
+                    error: function (xhr) {
+                        console.log(xhr.responseText);
+                        // Si falla la red o el servidor, detenemos el loader
+                        reject(new Error("Error de comunicación con el servidor."));
+                    }
+                });
+            }).catch(error => {
+                // Si hubo un error (reject), mostramos el texto rojo dentro del mismo SweetAlert
+                Swal.showValidationMessage(`<i class="ti ti-alert-triangle me-1"></i> ${error.message}`);
+            });
+        }
+    }).then((result) => {
+        // 4. ESTO SE EJECUTA CUANDO EL AJAX TERMINÓ CON ÉXITO
+        if (result.isConfirmed) {
+            $("#modalDetalleBoleto").modal("hide");
+
+            // La respuesta de tu servidor viene guardada en "result.value"
+            let response = result.value;
+
+            mostrarAlertaTimer(
+                response.d.Estado ? '¡Excelente!' : 'Atención',
+                response.d.Mensaje,
+                response.d.Valor
+            );
+
+            // Recargamos la tabla si fue exitoso
+            if (response.d.Estado) {
+                cargarListaPasajeros(viajeSeleccionadoId);
+                $("#txtIdBoleto").val("0");
+            }
+        }
+        // Si hizo clic en Cancelar, result.isDismissed será true, 
+        // y el SweetAlert simplemente se cerrará sin hacer nada más.
+    });
+
+});
+
+function imprimirTicket(idBoletoNuevo) {
+
+    const request = {
+        IdBoleto: parseInt(idBoletoNuevo)
+    };
+
+    $.ajax({
+        url: "VentaPasajes.aspx/ObtenerDetalleBoletoImpresion",
+        type: "POST",
+        data: JSON.stringify(request),
+        contentType: 'application/json; charset=utf-8',
+        dataType: "json",
+        success: function (response) {
+            if (response.d.Estado) {
+                const datosBoleto = response.d.Data;
+                // Llenamos el ticket oculto
+                $("#tck_Tipo").text(datosBoleto.TipoTransaccion);
+                $("#tck_Comprobante").text(datosBoleto.NroComprobante);
+                $("#tck_Fecha").text(datosBoleto.FechaSalidaStr);
+                $("#tck_Hora").text(datosBoleto.HoraSalidaStr);
+                $("#tck_Bus").text(datosBoleto.TipoBus + ' | ' + datosBoleto.PlacaBus);
+
+                $("#tck_Origen").text(datosBoleto.CiudadOrigen.toUpperCase());
+                $("#tck_Destino").text(datosBoleto.CiudadDestino.toUpperCase());
+
+                $("#tck_Pasajero").text(datosBoleto.NombrePasajero.toUpperCase());
+                $("#tck_CI").text(datosBoleto.CIPasajero);
+
+                // Controlamos el asiento y el menor
+                let textoAsiento = datosBoleto.NroAsiento.toString();
+                if (datosBoleto.LlevaMenorEdad) {
+                    textoAsiento += " (+BEBÉ)";
+                }
+                $("#tck_Asiento").text(textoAsiento);
+
+                $("#tck_Precio").text(datosBoleto.CostoPasaje.toFixed(2));
+
+                // Le damos al navegador 200 milisegundos para dibujar los textos antes de abrir la impresora
+                setTimeout(function () {
+                    window.print();
+                }, 200);
+
+                // Ejecutamos la impresión nativa del navegador
+                //window.print();
+
+                //mostrarAlertaTimer("¡Excelente!", response.d.Mensaje, "success");
+            } else {
+                mostrarAlertaTimer("¡Atención!", response.d.Mensaje, "warning");
+            }
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            console.log(xhr.status + " \n" + xhr.responseText, "\n" + thrownError);
+            mostrarAlertaZero("¡Atención!", "Error de comunicación con el servidor.", "error");
         }
     });
 }

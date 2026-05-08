@@ -45,5 +45,15 @@ namespace CapaNegocio
             return DVentaPasajes.GetInstance().ListaPasajerosViaje(IdViaje);
         }
 
+        public Respuesta<int> PagarReserva(int IdBoleto)
+        {
+            return DVentaPasajes.GetInstance().PagarReserva(IdBoleto);
+        }
+
+        public Respuesta<int> EliminarReserva(int IdBoleto)
+        {
+            return DVentaPasajes.GetInstance().EliminarReserva(IdBoleto);
+        }
+
     }
 }

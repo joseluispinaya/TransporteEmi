@@ -253,5 +253,149 @@ namespace CapaDatos
             }
         }
 
+        public Respuesta<int> PagarReserva(int IdBoleto)
+        {
+            Respuesta<int> response = new Respuesta<int>();
+            int resultadoCodigo = 0;
+
+            try
+            {
+                using (SqlConnection con = ConexionBD.GetInstance().ConexionDB())
+                {
+                    using (SqlCommand cmd = new SqlCommand("usp_PagarReserva", con))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+
+                        // 2. Parámetro
+                        cmd.Parameters.AddWithValue("@IdBoleto", IdBoleto);
+
+                        // 4. Parámetro de Salida
+                        SqlParameter outputParam = new SqlParameter("@Resultado", SqlDbType.Int)
+                        {
+                            Direction = ParameterDirection.Output
+                        };
+                        cmd.Parameters.Add(outputParam);
+
+                        con.Open();
+                        cmd.ExecuteNonQuery();
+
+                        resultadoCodigo = Convert.ToInt32(outputParam.Value);
+                    }
+                }
+
+                response.Data = resultadoCodigo;
+
+                // 5. Interpretación de la respuesta
+                switch (resultadoCodigo)
+                {
+                    case 1:
+                        response.Estado = true;
+                        response.Valor = "success";
+                        response.Mensaje = "Pago registrado exitosamente.";
+                        break;
+
+                    case 2:
+                        response.Estado = false;
+                        response.Valor = "warning";
+                        response.Mensaje = "El boleto no existe.";
+                        break;
+
+                    case 3:
+                        response.Estado = false;
+                        response.Valor = "warning";
+                        response.Mensaje = "Este boleto ya fue pagado y emitido anteriormente.";
+                        break;
+
+                    case 0:
+                    default:
+                        response.Estado = false;
+                        response.Valor = "error";
+                        response.Mensaje = "No se pudo completar la operación en la base de datos.";
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                //response.Data = 0;
+                response.Estado = false;
+                response.Valor = "error";
+                response.Mensaje = "Error interno: " + ex.Message;
+            }
+
+            return response;
+        }
+
+        public Respuesta<int> EliminarReserva(int IdBoleto)
+        {
+            Respuesta<int> response = new Respuesta<int>();
+            int resultadoCodigo = 0;
+
+            try
+            {
+                using (SqlConnection con = ConexionBD.GetInstance().ConexionDB())
+                {
+                    using (SqlCommand cmd = new SqlCommand("usp_EliminarReserva", con))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+
+                        // 2. Parámetro
+                        cmd.Parameters.AddWithValue("@IdBoleto", IdBoleto);
+
+                        // 4. Parámetro de Salida
+                        SqlParameter outputParam = new SqlParameter("@Resultado", SqlDbType.Int)
+                        {
+                            Direction = ParameterDirection.Output
+                        };
+                        cmd.Parameters.Add(outputParam);
+
+                        con.Open();
+                        cmd.ExecuteNonQuery();
+
+                        resultadoCodigo = Convert.ToInt32(outputParam.Value);
+                    }
+                }
+
+                response.Data = resultadoCodigo;
+
+                // 5. Interpretación de la respuesta
+                switch (resultadoCodigo)
+                {
+                    case 1:
+                        response.Estado = true;
+                        response.Valor = "success";
+                        response.Mensaje = "Reserva eliminada exitosamente.";
+                        break;
+
+                    case 2:
+                        response.Estado = false;
+                        response.Valor = "warning";
+                        response.Mensaje = "La reserva no existe o ya fue eliminada.";
+                        break;
+
+                    case 3:
+                        response.Estado = false;
+                        response.Valor = "warning";
+                        response.Mensaje = "No se puede eliminar un boleto que ya tiene un comprobante de venta.";
+                        break;
+
+                    case 0:
+                    default:
+                        response.Estado = false;
+                        response.Valor = "error";
+                        response.Mensaje = "No se pudo completar la operación en la base de datos.";
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                //response.Data = 0;
+                response.Estado = false;
+                response.Valor = "error";
+                response.Mensaje = "Error interno: " + ex.Message;
+            }
+
+            return response;
+        }
+
     }
 }

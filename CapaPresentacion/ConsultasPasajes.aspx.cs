@@ -30,5 +30,34 @@ namespace CapaPresentacion
         {
             return NVentaPasajes.GetInstance().ListaPasajerosViaje(IdViaje);
         }
+
+        [WebMethod]
+        public static Respuesta<int> PagarReserva(int IdBoleto)
+        {
+            return NVentaPasajes.GetInstance().PagarReserva(IdBoleto);
+        }
+
+        [WebMethod]
+        public static Respuesta<int> EliminarReserva(int IdBoleto)
+        {
+            return NVentaPasajes.GetInstance().EliminarReserva(IdBoleto);
+        }
+
+        [WebMethod]
+        public static Respuesta<int> PagarReservaPrueba(int IdBoleto)
+        {
+            System.Threading.Thread.Sleep(2000);
+
+            // 2. Creamos la respuesta
+            Respuesta<int> response = new Respuesta<int>
+            {
+                Estado = true,
+                Valor = "success",
+                Mensaje = "Reserva Pagada correctamente. (Prueba Simulada)",
+                Data = 2
+            };
+
+            return response;
+        }
     }
 }
