@@ -10,7 +10,7 @@
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
-
+    <link href="assets/vendor/sweetalert2/sweetalert2.min.css" rel="stylesheet" type="text/css" />
     <style>
         /* Reseteo básico */
         body, html {
@@ -57,7 +57,7 @@
         .form-control.with-icon {
             border-left: none;
             border-radius: 0 10px 10px 0;
-            padding-left: 0;
+            padding-left: 0.5rem;
         }
 
         .form-control:focus {
@@ -116,7 +116,7 @@
                 <label for="txtUsuario" class="form-label fw-bold text-secondary small text-uppercase">Nro CI o Correo</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="ti ti-user fs-5"></i></span>
-                    <input type="text" class="form-control with-icon" id="txtUsuario" placeholder="Ingrese su usuario">
+                    <input type="text" class="form-control with-icon" id="txtUsuario" placeholder="Ingrese su usuario" value="mariaqma@yopmail.com">
                 </div>
             </div>
 
@@ -124,7 +124,7 @@
                 <label for="txtClave" class="form-label fw-bold text-secondary small text-uppercase">Contraseña</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="ti ti-lock fs-5"></i></span>
-                    <input type="password" class="form-control with-icon" id="txtClave" placeholder="••••••••">
+                    <input type="password" class="form-control with-icon" id="txtClave" placeholder="••••••••" value="12131415">
                     <button class="btn btn-toggle-pass" type="button" id="btnVerClave">
                         <i class="ti ti-eye fs-5"></i>
                     </button>
@@ -141,5 +141,8 @@
     </div>
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="assets/vendor/sweetalert2/sweetalert2.min.js"></script>
+    <script src="assets/vendor/loadingoverlay/loadingoverlay.min.js"></script>
+    <script src="js/Login.js?v=<%= DateTime.Now.ToString("yyyyMMddHHmmss") %>" type="text/javascript"></script>
 </body>
 </html>

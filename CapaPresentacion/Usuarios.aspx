@@ -16,55 +16,52 @@
     <div class="row">
         <div class="col-lg-12">
             <div class="card">
-                <div class="d-flex card-header justify-content-between align-items-center border-bottom border-dashed">
-                    <h4 class="header-title">Usuarios Registrados</h4>
-                </div>
+                <%--<div class="d-flex card-header justify-content-between align-items-center border-bottom border-dashed">
+                    <h4 class="header-title">Registro de Usuarios</h4>
+                </div>--%>
 
                 <div class="card-body">
 
-                    <div class="row">
-                        <div class="col-md-12 mb-3">
-                            <div class="d-flex flex-wrap gap-2">
-                                <button type="button" id="btnToast" class="btn btn-success">ToastMaster</button>
-                                <button type="button" id="btnZero" class="btn btn-outline-info">AlertaZero</button>
-                                <button type="button" id="btnTimer" class="btn btn-warning rounded-pill">AlertaTimer</button>
-                                <button type="button" id="btnTimerNew" class="btn btn-outline-danger rounded-pill">AlertaTimerNew</button>
-                                <button type="button" id="btnContador" class="btn btn-success bg-gradient">TimerConContador</button>
-                                <button type="button" id="btnConfirma" class="btn btn-info btn-sm">Confirmacion</button>
-                            </div>
+                    <!-- <div class="row">
+                    <div class="col-md-12 mb-3">
+                        <div class="d-flex flex-wrap gap-2">
+                            <button type="button" id="btnToast" class="btn btn-success">ToastMaster</button>
+                            <button type="button" id="btnZero" class="btn btn-outline-info">AlertaZero</button>
+                            <button type="button" id="btnTimer" class="btn btn-warning rounded-pill">AlertaTimer</button>
+                            <button type="button" id="btnTimerNew" class="btn btn-outline-danger rounded-pill">AlertaTimerNew</button>
+                            <button type="button" id="btnContador" class="btn btn-success bg-gradient">TimerConContador</button>
+                            <button type="button" id="btnConfirma" class="btn btn-info btn-sm">Confirmacion</button>
+                        </div>
+                    </div>
+                </div> -->
+
+                    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 pb-3 border-bottom">
+                        <div>
+                            <h5 class="mb-0 text-dark">Lista de usuarios registrados</h5>
+                            <p class="text-muted fs-13 mb-0">Administra los usuarios del sistema.</p>
+                        </div>
+                        <div>
+                            <button type="button" id="btnNuevore" class="btn btn-primary rounded-pill fw-medium px-3">
+                                <i class="ti ti-plus fs-18 align-middle me-1"></i>Nuevo Registro
+                            </button>
                         </div>
                     </div>
 
-                    <div class="mb-2">
-                        <div class="d-flex justify-content-center">
-                            <div class="input-group input-group-sm w-100 me-2" style="max-width: 390px;">
-                                <span class="input-group-text bg-light text-muted fw-semibold" id="addon-regional">
-                                    <i class="ti ti-map-2 me-1"></i>Oficina
-                                </span>
-                                <select class="form-select" id="cboOficina" aria-describedby="addon-regional">
-                                </select>
-                            </div>
-                            <button type="button" id="btnNuevore" class="btn btn-sm btn-info"><i class="ti ti-plus fs-16 align-middle me-1"></i>Nuevo Registro</button>
-                        </div>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover align-middle border-bottom" id="tbData" style="width: 100%">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Usuario</th>
+                                    <th>Documento & Contacto</th>
+                                    <th>Rol & Sucursal</th>
+                                    <th>Estado</th>
+                                    <th class="text-center rounded-end">Opciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
                     </div>
-
-                    <table class="table table-striped table-sm" id="tbUsuarios" cellspacing="0" style="width: 100%">
-                        <thead>
-                            <tr>
-                                <th>Id</th>
-                                <th>Imagen</th>
-                                <th>Usuarios</th>
-                                <th>Nro CI</th>
-                                <th>Nro Cel</th>
-                                <th>Rol</th>
-                                <th>Correos</th>
-                                <th>Estado</th>
-                                <th>Opciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
                 </div>
             </div>
         </div>

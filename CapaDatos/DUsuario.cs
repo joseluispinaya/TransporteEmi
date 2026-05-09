@@ -11,30 +11,30 @@ using System.Threading.Tasks;
 
 namespace CapaDatos
 {
-    public class DCliente
+    public class DUsuario
     {
         #region "PATRON SINGLETON"
-        private static DCliente instancia = null;
-        private DCliente() { }
-        public static DCliente GetInstance()
+        private static DUsuario instancia = null;
+        private DUsuario() { }
+        public static DUsuario GetInstance()
         {
             if (instancia == null)
             {
-                instancia = new DCliente();
+                instancia = new DUsuario();
             }
             return instancia;
         }
         #endregion
 
-        public Respuesta<List<ClienteDTO>> ListaClientesPaginado(int Omitir, int TamanoPagina, string Buscar)
+        public Respuesta<List<UsuarioDTO>> ListaUsuariosPaginado(int Omitir, int TamanoPagina, string Buscar)
         {
             try
             {
-                List<ClienteDTO> rptLista = new List<ClienteDTO>();
+                List<UsuarioDTO> rptLista = new List<UsuarioDTO>();
 
                 using (SqlConnection con = ConexionBD.GetInstance().ConexionDB())
                 {
-                    using (SqlCommand cmd = new SqlCommand("usp_ListarClientesPaginado", con))
+                    using (SqlCommand cmd = new SqlCommand("usp_ListarUsuariosPaginado", con))
                     {
                         cmd.CommandType = CommandType.StoredProcedure;
                         cmd.Parameters.AddWithValue("@Omitir", Omitir);
@@ -42,21 +42,28 @@ namespace CapaDatos
                         // Si Buscar es null, mandamos cadena vacía para evitar errores en SQL
                         cmd.Parameters.AddWithValue("@Buscar", Buscar ?? "");
 
+                        //cmd.Parameters.AddWithValue("@Buscar", Buscar);
                         con.Open();
 
                         using (SqlDataReader dr = cmd.ExecuteReader())
                         {
                             while (dr.Read())
                             {
-                                rptLista.Add(new ClienteDTO
+                                rptLista.Add(new UsuarioDTO
                                 {
-                                    IdCliente = Convert.ToInt32(dr["IdCliente"]),
+                                    IdUsuario = Convert.ToInt32(dr["IdUsuario"]),
+                                    IdRol = Convert.ToInt32(dr["IdRol"]),
+                                    NombreRol = dr["NombreRol"].ToString(),
+                                    IdCiudad = Convert.ToInt32(dr["IdCiudad"]),
+                                    NombreCiudad = dr["NombreCiudad"].ToString(),
                                     NroCi = dr["NroCi"].ToString(),
                                     Nombres = dr["Nombres"].ToString(),
                                     Apellidos = dr["Apellidos"].ToString(),
 
-                                    Genero = Convert.ToChar(dr["Genero"].ToString()),
                                     Celular = dr["Celular"].ToString(),
+                                    Correo = dr["Correo"].ToString(),
+                                    FotoUrl = dr["FotoUrl"].ToString(),
+                                    Estado = Convert.ToBoolean(dr["Estado"]),
                                     // Mapeo de los campos de paginación
                                     TotalRegistros = Convert.ToInt32(dr["TotalRegistros"]),
                                     TotalFiltrados = Convert.ToInt32(dr["TotalFiltrados"])
@@ -65,7 +72,7 @@ namespace CapaDatos
                         }
                     }
                 }
-                return new Respuesta<List<ClienteDTO>>()
+                return new Respuesta<List<UsuarioDTO>>()
                 {
                     Estado = true,
                     Data = rptLista,
@@ -75,7 +82,7 @@ namespace CapaDatos
             catch (Exception ex)
             {
                 // Maneja cualquier error inesperado
-                return new Respuesta<List<ClienteDTO>>()
+                return new Respuesta<List<UsuarioDTO>>()
                 {
                     Estado = false,
                     Mensaje = "Ocurrió un error: " + ex.Message,
@@ -84,7 +91,7 @@ namespace CapaDatos
             }
         }
 
-        public Respuesta<int> GuardarOrEditClientes(ECliente objeto)
+        public Respuesta<int> GuardarOrEditUsuarios(EUsuarios objeto)
         {
             Respuesta<int> response = new Respuesta<int>();
             int resultadoCodigo = 0;
@@ -93,18 +100,26 @@ namespace CapaDatos
             {
                 using (SqlConnection con = ConexionBD.GetInstance().ConexionDB())
                 {
-                    using (SqlCommand cmd = new SqlCommand("usp_GuardarOrEditClientes", con))
+                    using (SqlCommand cmd = new SqlCommand("usp_GuardarOrEditUsuarios", con))
                     {
                         cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.AddWithValue("@IdCliente", objeto.IdCliente);
+                        cmd.Parameters.AddWithValue("@IdUsuario", objeto.IdUsuario);
+                        cmd.Parameters.AddWithValue("@IdRol", objeto.IdRol);
+                        cmd.Parameters.AddWithValue("@IdCiudad", objeto.IdCiudad);
                         cmd.Parameters.AddWithValue("@NroCi", objeto.NroCi);
 
                         cmd.Parameters.AddWithValue("@Nombres", objeto.Nombres);
                         cmd.Parameters.AddWithValue("@Apellidos", objeto.Apellidos);
 
-                        cmd.Parameters.AddWithValue("@ClaveHash", string.IsNullOrEmpty(objeto.ClaveHash) ? "" : objeto.ClaveHash);
-                        cmd.Parameters.AddWithValue("@Genero", objeto.Genero);
                         cmd.Parameters.AddWithValue("@Celular", objeto.Celular);
+                        cmd.Parameters.AddWithValue("@Correo", objeto.Correo);
+
+                        // Blindaje contra nulos en la Clave (Si es Update, puede que venga nula. La mandamos vacía para que el SP la ignore)
+                        cmd.Parameters.AddWithValue("@Clave", string.IsNullOrEmpty(objeto.Clave) ? "" : objeto.Clave);
+
+                        // Lo que hiciste con FotoUrl está perfecto porque el SP usa ISNULL(@FotoUrl, '')
+                        cmd.Parameters.AddWithValue("@FotoUrl", string.IsNullOrEmpty(objeto.FotoUrl) ? "" : objeto.FotoUrl);
+                        cmd.Parameters.AddWithValue("@Estado", objeto.Estado);
 
                         SqlParameter outputParam = new SqlParameter("@Resultado", SqlDbType.Int)
                         {
@@ -126,7 +141,7 @@ namespace CapaDatos
                     case 1: // Duplicado
                         response.Estado = false;
                         response.Valor = "warning";
-                        response.Mensaje = "Ocurrio un problema el NroCi ya existe";
+                        response.Mensaje = "Ocurrio un problema el NroCi o Correo ya existe";
                         break;
 
                     case 2: // Registro Nuevo
@@ -160,115 +175,90 @@ namespace CapaDatos
             return response;
         }
 
-        public Respuesta<List<ClienteDTO>> FiltroClientes(string Busqueda)
+        public Respuesta<List<ERol>> ListaRoles()
         {
             try
             {
-                List<ClienteDTO> rptLista = new List<ClienteDTO>();
-
+                List<ERol> rptLista = new List<ERol>();
                 using (SqlConnection con = ConexionBD.GetInstance().ConexionDB())
                 {
-                    using (SqlCommand comando = new SqlCommand("usp_FiltroClientes", con))
+                    using (SqlCommand comando = new SqlCommand("usp_Roles", con))
                     {
                         comando.CommandType = CommandType.StoredProcedure;
-                        comando.Parameters.AddWithValue("@Busqueda", Busqueda);
                         con.Open();
-
                         using (SqlDataReader dr = comando.ExecuteReader())
                         {
                             while (dr.Read())
                             {
-                                rptLista.Add(new ClienteDTO
+                                rptLista.Add(new ERol
                                 {
-                                    IdCliente = Convert.ToInt32(dr["IdCliente"]),
-                                    NroCi = dr["NroCi"].ToString(),
-                                    Nombres = dr["Nombres"].ToString(),
-                                    Apellidos = dr["Apellidos"].ToString(),
-
-                                    Genero = Convert.ToChar(dr["Genero"].ToString()),
-                                    Celular = dr["Celular"].ToString()
+                                    IdRol = Convert.ToInt32(dr["IdRol"]),
+                                    NombreRol = dr["NombreRol"].ToString(),
+                                    Estado = Convert.ToBoolean(dr["Estado"])
                                 });
                             }
                         }
                     }
                 }
-                return new Respuesta<List<ClienteDTO>>()
+                return new Respuesta<List<ERol>>()
                 {
                     Estado = true,
                     Data = rptLista,
-                    Mensaje = "Lista obtenidos correctamente"
+                    Mensaje = "Lista obtenida correctamente"
                 };
             }
             catch (Exception ex)
             {
-                // Maneja cualquier error inesperado
-                return new Respuesta<List<ClienteDTO>>()
+                return new Respuesta<List<ERol>>()
                 {
                     Estado = false,
-                    Mensaje = "Ocurrió un error: " + ex.Message,
-                    Data = null
+                    Data = null,
+                    Mensaje = $"Error al obtener la lista: {ex.Message}"
                 };
             }
         }
 
-        public void ActualizarToken(int IdCliente, string ExpoPushToken)
+        public Respuesta<EUsuarios> LoginUsuario(string Correo)
         {
             try
             {
-                using (SqlConnection con = ConexionBD.GetInstance().ConexionDB())
-                {
-                    using (SqlCommand comando = new SqlCommand("usp_ActualizarTokenPush", con))
-                    {
-                        comando.CommandType = CommandType.StoredProcedure;
-                        comando.Parameters.AddWithValue("@IdCliente", IdCliente);
-                        comando.Parameters.AddWithValue("@ExpoPushToken", ExpoPushToken);
-
-                        con.Open();
-                        comando.ExecuteNonQuery();
-                    }
-                }
-            }
-            catch (Exception)
-            {
-                // Se captura el error pero no se lanza (throw) para que, 
-                // si la BD de auditoría falla, no le impida al usuario entrar al sistema.
-            }
-        }
-
-        public Respuesta<ECliente> LoginClientes(string NroCi)
-        {
-            try
-            {
-                ECliente obj = null;
+                EUsuarios obj = null;
 
                 using (SqlConnection con = ConexionBD.GetInstance().ConexionDB())
                 {
-                    using (SqlCommand comando = new SqlCommand("usp_LoginClientes", con))
+                    using (SqlCommand comando = new SqlCommand("usp_LoginUsuario", con))
                     {
                         comando.CommandType = CommandType.StoredProcedure;
-                        comando.Parameters.AddWithValue("@NroCi", NroCi);
+                        comando.Parameters.AddWithValue("@Correo", Correo);
 
                         con.Open();
                         using (SqlDataReader dr = comando.ExecuteReader())
                         {
                             if (dr.Read())
                             {
-                                obj = new ECliente
+                                obj = new EUsuarios
                                 {
-                                    IdCliente = Convert.ToInt32(dr["IdCliente"]),
+                                    IdUsuario = Convert.ToInt32(dr["IdUsuario"]),
+                                    IdRol = Convert.ToInt32(dr["IdRol"]),
+                                    NombreRol = dr["NombreRol"].ToString(),
+                                    IdCiudad = Convert.ToInt32(dr["IdCiudad"]),
+                                    NombreCiudad = dr["NombreCiudad"].ToString(),
                                     NroCi = dr["NroCi"].ToString(),
                                     Nombres = dr["Nombres"].ToString(),
                                     Apellidos = dr["Apellidos"].ToString(),
-                                    ClaveHash = dr["ClaveHash"].ToString(),
-                                    Genero = Convert.ToChar(dr["Genero"].ToString()),
-                                    Celular = dr["Celular"].ToString()
+
+                                    Celular = dr["Celular"].ToString(),
+                                    Correo = dr["Correo"].ToString(),
+                                    Clave = dr["Clave"].ToString(),
+                                    FotoUrl = dr["FotoUrl"].ToString(),
+                                    Estado = Convert.ToBoolean(dr["Estado"])
                                 };
                             }
                         }
                     }
                 }
 
-                return new Respuesta<ECliente>
+                return new Respuesta<EUsuarios>
                 {
                     Estado = obj != null,
                     Data = obj,
@@ -277,7 +267,7 @@ namespace CapaDatos
             }
             catch (Exception)
             {
-                return new Respuesta<ECliente>
+                return new Respuesta<EUsuarios>
                 {
                     Estado = false,
                     Mensaje = "Ocurrió un error en el servidor. Intente más tarde.",

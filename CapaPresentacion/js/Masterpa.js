@@ -134,4 +134,78 @@ function mostrarAlertaConfirmacion(titulo, mensaje, icono = 'warning', textoConf
     });
 }
 
+$(document).ready(function () {
+    const usuario = sessionStorage.getItem('userTrans');
+
+    if (!usuario) {
+        window.location.replace('Login.aspx');
+        return;
+    }
+
+    try {
+        const usua = JSON.parse(usuario);
+        // mostrar la imagen y nombre del usuairo 
+        $("#imgUserTra").attr("src", usua.FotoUrl || "Imagenes/sinImagen.png");
+        $("#lblRol").text(usua.NombreRol);
+    } catch (error) {
+        console.error("Error leyendo sesión", error);
+        sessionStorage.clear();
+        window.location.replace('Login.aspx');
+    }
+});
+
+$('#salirsis').on('click', function (e) {
+    e.preventDefault();
+
+    // Opcional: Preguntar antes de salir con SweetAlert
+    Swal.fire({
+        title: '¿Cerrar Sesión?',
+        text: "Saldrás del sistema",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, salir',
+        cancelButtonText: 'Cancelar',
+        buttonsStyling: false,
+        customClass: {
+            confirmButton: "btn btn-danger me-2 mt-2",
+            cancelButton: "btn btn-primary mt-2"
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            EjecutarCierreSesion();
+        }
+    })
+});
+
+function EjecutarCierreSesion() {
+    $.ajax({
+        // Asegúrate que la ruta apunte a donde pusiste el WebMethod
+        // Si estás en MasterEstudiante/Inicio.aspx, la ruta es "Inicio.aspx/CerrarSesion"
+        url: "Inicio.aspx/CerrarSesion",
+        type: "POST",
+        data: "{}",
+        dataType: "json",
+        contentType: 'application/json; charset=utf-8',
+        success: function (response) {
+            if (response.d.Estado) {
+                // 1. Limpiar rastro en cliente
+                sessionStorage.clear();
+                localStorage.clear(); // Por si usaste localstorage
+
+                // 2. Redireccionar
+                // Usamos 'replace' para que el usuario no pueda volver atrás con el botón del navegador
+                // Ajusta la ruta "../Login.aspx" dependiendo de qué tan adentro esté tu archivo
+                window.location.replace('Login.aspx');
+            }
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            console.log("Error al cerrar sesión");
+            // Si falla el servidor, igual sacamos al usuario visualmente por seguridad
+            sessionStorage.clear();
+            //localStorage.clear();
+            window.location.replace('Login.aspx');
+        }
+    });
+}
+
 // globales

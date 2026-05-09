@@ -403,12 +403,11 @@ $("#cboDestino").on("change", function () {
         data: JSON.stringify(request),
         contentType: 'application/json; charset=utf-8',
         dataType: "json",
+        // ... código anterior del AJAX ...
         success: function (response) {
             if (response.d.Estado && response.d.Data != null) {
 
-                // EXITO: Encontró el precio. Lo ponemos y ASEGURAMOS que esté bloqueado
-                // EXITO: Leemos la propiedad PrecioPasaje de nuestro objeto
-                // Usamos .toFixed(2) para que siempre muestre 2 decimales (ej. 50.00)
+                // EXITO: Encontró el precio.
                 let precioBoleto = response.d.Data.PrecioPasaje;
                 $("#txtPrecio").val(precioBoleto.toFixed(2)).prop("readonly", true).removeClass("bg-warning-subtle");
 
@@ -419,11 +418,22 @@ $("#cboDestino").on("change", function () {
 
                 if (response.d.Valor === "MISMO_DESTINO") {
 
-                    // REGLA DE NEGOCIO: Reseteamos el precio y el combo, mostramos alerta fuerte
+                    // REGLA: Reseteamos el precio y el combo, mostramos alerta fuerte
                     $("#txtPrecio").val("0.00").prop("readonly", true).removeClass("bg-warning-subtle");
-                    $("#cboDestino").val(""); // Devolvemos el combo a "-- Seleccione Destino --"
-
+                    $("#cboDestino").val("");
                     mostrarAlertaZero("¡Destino Inválido!", response.d.Mensaje, "warning");
+
+                } else if (response.d.Valor === "SIN_SESION") { // <--- ¡AQUÍ ESTÁ TU NUEVA VALIDACIÓN!
+
+                    // REGLA: Sesión expirada. Bloqueamos todo, mostramos alerta de error y lo mandamos al Login.
+                    $("#txtPrecio").val("0.00").prop("readonly", true);
+                    mostrarAlertaTimer("¡Sesión Expirada!", response.d.Mensaje, "error", 2000);
+
+                    // Opcional pero muy recomendado: Redirigir al login después de 2 segundos
+                    setTimeout(function () {
+                        //window.location.replace('Login.aspx');
+                        window.location.href = "Login.aspx";
+                    }, 2200);
 
                 } else {
 

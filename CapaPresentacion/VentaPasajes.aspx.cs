@@ -31,29 +31,67 @@ namespace CapaPresentacion
             return NViajes.GetInstance().ListaViajesVentas();
         }
 
-        [WebMethod]
+        [WebMethod(EnableSession = true)]
         public static Respuesta<TarifarioDTO> ConsultarTarifario(int IdDestino, int IdTipoBus)
         {
-            // Simulación: El IdOrigen lo obtendré del usuario logueado
-            int IdOrigen = 1;
-
-            // VALIDACIÓN CLAVE: Origen y Destino no pueden ser el mismo
-            if (IdOrigen == IdDestino)
+            // 1. Validar Sesión
+            if (HttpContext.Current.Session["UsuarioLogueado"] == null)
             {
-                return new Respuesta<TarifarioDTO>
-                {
-                    Estado = false,
-                    Valor = "MISMO_DESTINO", // Usamos tu propiedad Valor como "Código de Error"
-                    Mensaje = "El pasajero no puede viajar a la misma ciudad donde se encuentra."
-                };
+                return new Respuesta<TarifarioDTO> { Estado = false, Valor = "SIN_SESION", Mensaje = "Su sesión ha expirado. Recargue la página." };
             }
 
-            // Si pasa la validación, consultamos a la base de datos
-            return NViajes.GetInstance().ConsultarTarifario(IdOrigen, IdDestino, IdTipoBus);
+            try
+            {
+                // Obtener el IdCiudad de la sesión (Seguro)
+                EUsuarios usuari = (EUsuarios)HttpContext.Current.Session["UsuarioLogueado"];
+
+                // VALIDACIÓN CLAVE: Origen y Destino no pueden ser el mismo
+                if (usuari.IdCiudad == IdDestino)
+                {
+                    return new Respuesta<TarifarioDTO>
+                    {
+                        Estado = false,
+                        Valor = "MISMO_DESTINO", // Usamos tu propiedad Valor como "Código de Error"
+                        Mensaje = "El pasajero no puede viajar a la misma ciudad donde se encuentra."
+                    };
+                }
+
+                return NViajes.GetInstance().ConsultarTarifario(usuari.IdCiudad, IdDestino, IdTipoBus);
+            }
+            catch (Exception ex)
+            {
+                // Captura cualquier error no previsto en la capa de presentación
+                return new Respuesta<TarifarioDTO> { Estado = false, Mensaje = "Ocurrió un error inesperado: " + ex.Message };
+            }
+        }
+
+        [WebMethod(EnableSession = true)]
+        public static Respuesta<int> RegistrarPasaje(BoletoDTO objeto)
+        {
+            // 1. Validar Sesión
+            if (HttpContext.Current.Session["UsuarioLogueado"] == null)
+            {
+                return new Respuesta<int> { Estado = false, Valor = "SIN_SESION", Mensaje = "Su sesión ha expirado. Recargue la página.", Data = 0 };
+            }
+
+            try
+            {
+                EUsuarios usuarioLogueado = (EUsuarios)HttpContext.Current.Session["UsuarioLogueado"];
+
+                // Sacamos la ciudad de forma segura de la sesión
+                int idOrigen = usuarioLogueado.IdCiudad;
+
+                // Mandamos a la capa de datos
+                return NVentaPasajes.GetInstance().RegistrarBoleto(objeto, idOrigen);
+            }
+            catch (Exception ex)
+            {
+                return new Respuesta<int> { Estado = false, Mensaje = ex.Message, Data = 0 };
+            }
         }
 
         [WebMethod]
-        public static Respuesta<int> RegistrarPasaje(BoletoDTO objeto)
+        public static Respuesta<int> RegistrarPasajePrueba(BoletoDTO objeto)
         {
             // Simulación: El IdOrigen lo obtendré del usuario logueado
             int IdOrigen = 1;

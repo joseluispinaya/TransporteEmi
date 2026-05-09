@@ -39,5 +39,17 @@ namespace CapaNegocio
             return DCliente.GetInstance().FiltroClientes(Busqueda);
         }
 
+        public void ActualizarToken(int IdCliente, string ExpoPushToken)
+        {
+            // Si en el futuro necesitas validar algo (ej. "solo registrar accesos de ciertos roles"),
+            // la lógica iría aquí. Por ahora, solo pasamos la orden a la Capa de Datos.
+            DCliente.GetInstance().ActualizarToken(IdCliente, ExpoPushToken);
+        }
+
+        public Respuesta<ECliente> LoginClientes(string NroCi)
+        {
+            return DCliente.GetInstance().LoginClientes(NroCi);
+        }
+
     }
 }
