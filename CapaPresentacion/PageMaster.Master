@@ -147,12 +147,40 @@
 
                     <li class="side-nav-title mt-2">Programacion Viajes</li>
 
-                    <li class="side-nav-item">
+                    <%--<li class="side-nav-item">
                         <a href="Viajes.aspx" class="side-nav-link">
                             <span class="menu-icon"><i class="ti ti-forms"></i></span>
                             <span class="menu-text"> Viajes </span>
                         </a>
+                    </li>--%>
+
+                    <li class="side-nav-item">
+                        <a data-bs-toggle="collapse" href="#sidebarEcommerce" aria-expanded="false" aria-controls="sidebarEcommerce" class="side-nav-link">
+                            <span class="menu-icon"><i class="ti ti-forms"></i></span>
+                            <span class="menu-text">Viajes </span>
+                            <span class="menu-arrow"></span>
+                        </a>
+                        <div class="collapse" id="sidebarEcommerce">
+                            <ul class="sub-menu">
+                                <li class="side-nav-item">
+                                    <a href="Viajes.aspx" class="side-nav-link">
+                                        <span class="menu-text">Programacion</span>
+                                    </a>
+                                </li>
+                                <li class="side-nav-item">
+                                    <a href="OpcionesViaje.aspx" class="side-nav-link">
+                                        <span class="menu-text">Opciones</span>
+                                    </a>
+                                </li>
+                                <li class="side-nav-item">
+                                    <a href="#" class="side-nav-link">
+                                        <span class="menu-text">Consultas</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
                     </li>
+
                     <li class="side-nav-item">
                         <a data-bs-toggle="collapse" href="#sidebarPagesError" aria-expanded="false" aria-controls="sidebarPagesError" class="side-nav-link">
                             <span class="menu-icon"><i class="ti ti-clipboard-text"></i></span>
