@@ -173,8 +173,8 @@
                                     </a>
                                 </li>
                                 <li class="side-nav-item">
-                                    <a href="#" class="side-nav-link">
-                                        <span class="menu-text">Consultas</span>
+                                    <a href="Notificaciones.aspx" class="side-nav-link">
+                                        <span class="menu-text">Notificaciones</span>
                                     </a>
                                 </li>
                             </ul>
